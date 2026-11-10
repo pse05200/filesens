@@ -239,7 +239,7 @@
     </section>
 
     <!-- Volet Droit : Panneau d'Aperçu Épuré Style IRIS -->
-    <section id="rightPane" class="w-3/5 flex flex-col overflow-y-auto bg-white dark:bg-slate-900 p-5">
+    <section id="rightPane" class="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-900 p-5">
       <div id="previewEmptyState" class="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 text-center">
         <i class="fa-regular fa-file text-5xl mb-3 text-slate-300 dark:text-slate-600"></i>
         <p class="text-sm font-medium">Sélectionnez un fichier dans la liste pour afficher son aperçu et ses étiquettes.</p>
@@ -569,7 +569,23 @@
       }
     }
 
-    // Rendu des pastilles de filtres (Étiquettes / Hashtags découverts)
+    // Affichage ou masquage de la colonne latérale fine des étiquettes
+    function toggleTagsSidebar() {
+      const sidebar = document.getElementById('tagsSidebar');
+      const btn = document.getElementById('btnToggleTagsSidebar');
+      if (!sidebar) return;
+      const isHidden = sidebar.classList.toggle('hidden');
+      localStorage.setItem('filesens_tags_sidebar', isHidden ? 'hidden' : 'visible');
+      if (btn) {
+        if (isHidden) {
+          btn.classList.remove('bg-dose-50', 'text-dose-700', 'border-dose-300', 'dark:bg-dose-950/70', 'dark:text-dose-300');
+        } else {
+          btn.classList.add('bg-dose-50', 'text-dose-700', 'border-dose-300', 'dark:bg-dose-950/70', 'dark:text-dose-300');
+        }
+      }
+    }
+
+    // Rendu des filtres d'étiquettes : Menu Déroulant (Dropdown) + Colonne Fine Verticale
     function renderTagFilters() {
       const tagCount = {};
       filesData.forEach(f => {
@@ -581,23 +597,63 @@
         });
       });
 
-      const container = document.getElementById('tagFilters');
-      let html = `
-        <button onclick="filterByTag('ALL')" class="tag-pill ${currentTagFilter === 'ALL' ? 'bg-red-600 text-white font-bold' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'} px-2.5 py-0.5 rounded-full text-xs transition shadow-2xs whitespace-nowrap">
-          Tous (${filesData.length})
-        </button>
-      `;
+      const uniqueTags = Object.keys(tagCount).sort((a, b) => tagCount[b] - tagCount[a]);
+      const totalTags = uniqueTags.length;
 
-      Object.keys(tagCount).sort((a, b) => tagCount[b] - tagCount[a]).forEach(tag => {
-        const active = currentTagFilter === tag;
-        html += `
-          <button onclick="filterByTag('${tag}')" class="tag-pill ${active ? 'bg-red-600 text-white font-bold' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'} px-2.5 py-0.5 rounded-full text-xs transition shadow-2xs whitespace-nowrap">
-            ${tag} <span class="text-[10px] opacity-75">(${tagCount[tag]})</span>
+      // 1. Menu Déroulant des Étiquettes (Dropdown)
+      const dropdown = document.getElementById('tagSelectDropdown');
+      if (dropdown) {
+        let optHtml = `<option value="ALL">🏷️ Toutes les étiquettes (${filesData.length})</option>`;
+        uniqueTags.forEach(tag => {
+          const selected = currentTagFilter === tag ? 'selected' : '';
+          optHtml += `<option value="${escapeHtml(tag)}" ${selected}>${escapeHtml(tag)} (${tagCount[tag]})</option>`;
+        });
+        dropdown.innerHTML = optHtml;
+        dropdown.value = currentTagFilter;
+      }
+
+      // 2. Colonne Fine Tout à Gauche (Vertical Sidebar)
+      const vertList = document.getElementById('tagsVerticalList');
+      const tagsCountBadge = document.getElementById('tagsCountBadge');
+      if (tagsCountBadge) tagsCountBadge.innerText = totalTags;
+
+      if (vertList) {
+        const isAllActive = currentTagFilter === 'ALL';
+        let vertHtml = `
+          <button onclick="filterByTag('ALL')" id="tagItem-ALL"
+            class="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-xs transition select-none ${
+              isAllActive
+                ? 'font-bold text-dose-700 dark:text-dose-300 bg-dose-50 dark:bg-dose-950/70 border border-dose-200 dark:border-dose-900 shadow-2xs'
+                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }">
+            <span class="truncate flex items-center gap-1.5">
+              <i class="fa-solid fa-layer-group text-[11px] text-dose-500"></i>
+              <span>Toutes</span>
+            </span>
+            <span class="text-[10px] font-semibold opacity-75">${filesData.length}</span>
           </button>
         `;
-      });
 
-      container.innerHTML = html;
+        uniqueTags.forEach(tag => {
+          const isActive = currentTagFilter === tag;
+          vertHtml += `
+            <button onclick="filterByTag('${escapeHtml(tag)}')" id="tagItem-${escapeHtml(tag)}"
+              class="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-xs transition select-none ${
+                isActive
+                  ? 'font-bold text-dose-700 dark:text-dose-300 bg-dose-50 dark:bg-dose-950/70 border border-dose-200 dark:border-dose-900 shadow-2xs'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }">
+              <span class="truncate flex items-center gap-1.5">
+                <i class="fa-solid fa-hashtag text-[10px] text-dose-500"></i>
+                <span class="truncate">${escapeHtml(tag.replace(/^#/, ''))}</span>
+              </span>
+              <span class="text-[10px] font-semibold opacity-75 px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800">${tagCount[tag]}</span>
+            </button>
+          `;
+        });
+
+        vertList.innerHTML = vertHtml;
+      }
     }
 
     function filterByTag(tag) {
@@ -1434,6 +1490,12 @@
 
     // Prêt à l'emploi (au clic de l'utilisateur)
     window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('filesens_tags_sidebar') === 'hidden') {
+        const sidebar = document.getElementById('tagsSidebar');
+        const btn = document.getElementById('btnToggleTagsSidebar');
+        if (sidebar) sidebar.classList.add('hidden');
+        if (btn) btn.classList.remove('bg-dose-50', 'text-dose-700', 'border-dose-300');
+      }
       const dirInput = document.getElementById('dirInput');
       if (dirInput) dirInput.focus();
     });
