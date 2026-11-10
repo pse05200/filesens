@@ -1,0 +1,23 @@
+# Fichiers d'environnement et secrets
+.env
+.env*
+api_filesens*
+*.json_cache
+.filesens_cache.json
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environnements virtuels
+venv/
+.venv/
+env/
+
+# Fichiers système et éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IRIS - FileSens (Dose-Shield Edition)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configuration du thème Tailwind style AttenuDose Dose-Shield & IRIS
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dose: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#f25c05', // Orange Dose-Shield officiel
+              700: '#ea580c',
+              800: '#c2410c',
+              900: '#7c2d12',
+              950: '#431407',
+            }
+          }
+        }
+      }
+    };
+
+    // Initialisation immédiate du mode sombre depuis localStorage
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Scrollbar sobre style AttenuDose */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #f25c05; }
+    .kbd-shortcut {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    .dark .kbd-shortcut {
+      background: #1e293b;
+      border-color: #334155;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans overflow-hidden bg-slate-50 text-slate-800 dark:bg-[#090d16] dark:text-slate-100 transition-colors duration-150">
+
+  <!-- En-tête Supérieur Style AttenuDose Dose-Shield & IRIS -->
+  <header class="bg-white dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 px-5 py-2.5 flex items-center justify-between z-10 shrink-0 shadow-sm">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-dose-50 dark:bg-dose-950/60 border border-dose-200 dark:border-dose-900 text-dose-600 dark:text-dose-400 font-black text-lg shadow-2xs">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold leading-tight flex items-center gap-2 text-slate-900 dark:text-white">
+          IRIS <span class="text-xs font-black text-dose-600 dark:text-dose-500 tracking-wider uppercase">FileSens</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-dose-200 bg-dose-50 text-dose-700 dark:bg-dose-950/50 dark:border-dose-900 dark:text-dose-300">
+            Dose-Shield
+          </span>
+        </h1>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Aperçus visuels, navigation fluide, étiquettes & entités clés</p>
+      </div>
+    </div>
+
+    <!-- Barre d'analyse de répertoire & sélecteur de mode -->
+    <div class="flex items-center space-x-2 flex-1 max-w-2xl mx-6">
+      <div class="relative w-full">
+        <i class="fa-solid fa-folder-open absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+        <input id="dirInput" type="text" placeholder="Chemin du dossier (ex: demo_folder ou C:\Dossier)..." value=""
+          onkeydown="if(event.key === 'Enter') startScan(false)"
+          class="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-dose-600 focus:ring-1 focus:ring-dose-600 transition">
+      </div>
+
+      <!-- Sélecteur de Mode IA (Double fonctionnement CEA / VPS) -->
+      <select id="modeSelect" onchange="onModeChange()"
+        class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:border-dose-600 transition cursor-pointer shadow-2xs shrink-0"
+        title="Sélectionner le mode d'analyse IA">
+        <option value="auto">⚡ Auto (CEA / VPS)</option>
+        <option value="maia">🏛️ Maïa CEA</option>
+        <option value="external">🌐 APIs Externes (.env)</option>
+      </select>
+
+      <button id="btnScan" onclick="startScan(false)"
+        class="bg-dose-600 hover:bg-dose-700 text-white transition px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap shadow-xs"
+        title="Démarrer l'analyse du dossier">
+        <i class="fa-solid fa-play text-[11px]"></i> Analyser
+      </button>
+      <button id="btnStopScan" onclick="stopScan()"
+        class="hidden bg-slate-800 hover:bg-slate-900 dark:bg-dose-700 dark:hover:bg-dose-800 text-white transition px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap shadow-xs animate-pulse"
+        title="Arrêter l'analyse en cours">
+        <i class="fa-solid fa-circle-stop"></i> Arrêter
+      </button>
+      <button id="btnRescan" onclick="startScan(true)"
+        class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 whitespace-nowrap"
+        title="Forcer une nouvelle analyse complète (ignore le cache)">
+        <i class="fa-solid fa-arrows-rotate"></i>
+      </button>
+    </div>
+
+    <!-- Outils, Diagnostic Réseau et Bascule Mode Sombre -->
+    <div class="flex items-center space-x-3">
+      <!-- Badge Environnement Réseau Détecté -->
+      <div id="envBadge" class="hidden sm:flex items-center space-x-1.5 text-[11px] font-medium px-2 py-1 rounded-lg border bg-slate-100/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300" title="Diagnostic réseau">
+        <span id="envDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+        <span id="envLabel">Détection...</span>
+      </div>
+
+      <div class="hidden xl:flex items-center space-x-1.5 text-xs text-slate-500 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+        <span>Raccourcis :</span>
+        <span class="kbd-shortcut">↑ / ↓</span> Défiler
+      </div>
+
+      <!-- Bouton Thème Sombre / Clair -->
+      <button id="themeToggleBtn" onclick="toggleTheme()"
+        class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center transition shadow-2xs"
+        title="Basculer entre mode clair et sombre">
+        <i id="themeIcon" class="fa-solid fa-moon text-xs"></i>
+      </button>
+
+      <!-- Bascule Mode Split / Grille -->
+      <div class="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
+        <button id="btnViewSplit" onclick="switchView('split')" class="px-2 py-1 text-xs rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-bold shadow-2xs">
+          <i class="fa-solid fa-table-columns"></i>
+        </button>
+        <button id="btnViewGrid" onclick="switchView('grid')" class="px-2 py-1 text-xs rounded text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white font-medium">
+          <i class="fa-solid fa-grip"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="aiWarnings" class="hidden bg-amber-50 dark:bg-amber-950/70 border-b border-amber-200 dark:border-amber-700/60 px-4 py-2 text-xs text-amber-800 dark:text-amber-200 whitespace-pre-line" role="status"></div>
+
+  <!-- Barre de Filtres par Étiquettes / Hashtags & Recherche -->
+  <div class="bg-white/80 dark:bg-[#0f172a]/70 border-b border-slate-200 dark:border-slate-800 px-4 py-1.5 flex items-center justify-between text-xs shrink-0 backdrop-blur">
+    <!-- Pastilles de filtres (Hashtags dynamiques) -->
+    <div class="flex items-center space-x-2 overflow-x-auto py-0.5" id="tagFilters">
+      <button onclick="filterByTag('ALL')" class="tag-pill active px-3 py-0.5 rounded-full font-bold bg-dose-600 text-white shadow-2xs whitespace-nowrap">
+        Tous (<span id="countAll">0</span>)
+      </button>
+    </div>
+
+    <!-- Champ de recherche rapide -->
+    <div class="flex items-center space-x-2 ml-4">
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-slate-400 text-[11px]"></i>
+        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Filtrer mot-clé, #tag, nom..."
+          class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md pl-7 pr-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-dose-600 transition w-56">
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu Principal (Double volet Split-View) -->
+  <main class="flex-1 flex overflow-hidden relative">
+
+    <!-- Volet Gauche : Liste des Fichiers Déroulante avec répertoire clair & auto-scroll -->
+    <section id="leftPane" class="w-2/5 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden bg-slate-50 dark:bg-[#0b0f19]">
+      <div class="px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-[#0f172a]">
+        <span class="font-bold uppercase tracking-wider text-[11px] text-slate-600 dark:text-slate-300">Fichiers répertoriés</span>
+        <span id="filesCountDisplay" class="font-bold text-dose-600 dark:text-dose-400">0 fichier</span>
+      </div>
+
+      <!-- Liste scrollable des fichiers -->
+      <div id="fileListContainer" class="flex-1 overflow-y-auto divide-y divide-slate-200/80 dark:divide-slate-800/80 focus:outline-none" tabindex="0">
+        <div class="p-10 text-center text-slate-400 dark:text-slate-500">
+          <i class="fa-regular fa-folder-open text-4xl mb-2 text-slate-300 dark:text-slate-600 block"></i>
+          Entrez le chemin d'un dossier et cliquez sur <b class="text-dose-600 dark:text-dose-400">Analyser</b> pour afficher les fichiers.
+        </div>
+      </div>
+    </section>
+
+    <!-- Volet Droit : Panneau d'Aperçu Épuré Style Dose-Shield (Visuel en premier) -->
+    <section id="rightPane" class="w-3/5 flex flex-col overflow-y-auto bg-white dark:bg-[#0f172a] p-5">
+      <div id="previewEmptyState" class="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 text-center">
+        <i class="fa-regular fa-file text-5xl mb-3 text-slate-300 dark:text-slate-600"></i>
+        <p class="text-sm font-medium">Sélectionnez un fichier dans la liste pour afficher son aperçu et ses entités clés.</p>
+      </div>
+
+      <div id="previewContent" class="hidden flex flex-col space-y-4">
+
+        <!-- 1. ZONE D'APERÇU DU FICHIER EN PREMIER (TOUT EN HAUT) -->
+        <div id="visualCard" class="w-full bg-slate-50 dark:bg-[#090d16] rounded-xl border border-slate-200 dark:border-slate-800 p-3 flex flex-col items-center justify-center min-h-[360px] shadow-sm">
+          <div id="previewMediaContainer" class="w-full h-full flex flex-col items-center justify-center">
+            <!-- Image, iframe PDF ou rendu Word inséré ici -->
+          </div>
+          <div id="previewExtraLink" class="mt-2 text-right w-full hidden">
+            <!-- Lien externe nouvel onglet -->
+          </div>
+        </div>
+
+        <!-- 2. TYPE DE FICHIER TRÈS VISIBLE + MOTS-CLÉS / ÉTIQUETTES SUR LA MÊME LIGNE -->
+        <div class="bg-slate-50/80 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-2xs">
+          <div class="flex items-center flex-wrap gap-2.5">
+            <!-- Type de fichier bien visible -->
+            <div id="detailFileTypeBadge" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-black tracking-wider uppercase shadow-2xs border bg-dose-50 dark:bg-dose-950/60 border-dose-200 dark:border-dose-900 text-dose-700 dark:text-dose-300 shrink-0">
+              <i id="detailFileTypeIcon" class="fa-solid fa-file text-sm"></i>
+              <span id="detailFileTypeBig">DOCUMENT</span>
+            </div>
+
+            <div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-1 hidden sm:block shrink-0"></div>
+
+            <!-- Mots-clés / Étiquettes identifiés & Modifiables -->
+            <div class="flex items-center flex-wrap gap-1.5 flex-1 min-w-[200px]">
+              <div id="detailTagsList" class="flex flex-wrap items-center gap-1.5">
+                <!-- Badges de mots-clés interactifs (éditables/supprimables) injectés ici -->
+              </div>
+
+              <!-- Bouton & Formulaire d'ajout d'étiquette -->
+              <div id="addTagWrapper" class="inline-flex items-center">
+                <button id="btnShowAddTag" onclick="openAddTagInput()" type="button"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-dashed border-slate-300 dark:border-slate-600 transition shadow-2xs"
+                  title="Ajouter un mot-clé ou une étiquette">
+                  <i class="fa-solid fa-plus text-[10px] text-dose-600 dark:text-dose-400"></i>
+                  <span>Ajouter tag</span>
+                </button>
+
+                <div id="addTagForm" class="hidden inline-flex items-center gap-1">
+                  <input id="inputNewTag" type="text" placeholder="Nouveau tag..."
+                    onkeydown="handleNewTagKey(event)"
+                    class="text-xs px-2.5 py-1 rounded-lg border border-dose-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none w-32 shadow-2xs">
+                  <button onclick="saveNewTag()" type="button"
+                    class="w-6 h-6 rounded-lg bg-dose-600 hover:bg-dose-700 text-white flex items-center justify-center text-xs shadow-xs transition"
+                    title="Valider l'ajout">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                  </button>
+                  <button onclick="cancelAddTag()" type="button"
+                    class="w-6 h-6 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs transition"
+                    title="Annuler">
+                    <i class="fa-solid fa-xmark text-[10px]"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. INFORMATIONS FICHIER (Nom original & Date/Taille) -->
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-2">
+          <div class="flex items-center justify-between gap-3">
+            <h2 id="detailOriginalName" class="text-sm font-bold text-slate-900 dark:text-white truncate max-w-xl" title="">
+              Nom_du_fichier.ext
+            </h2>
+            <span id="detailMeta" class="text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap shrink-0">
+              12 Ko • Date : 2024-03-15
+            </span>
+          </div>
+        </div>
+
+        <!-- 4. POINTS CLÉS & RÉSUMÉ DU CONTENU SOBRE -->
+        <div class="bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-2.5">
+            <i class="fa-solid fa-list-ul text-dose-600 dark:text-dose-400"></i> Points clés & Synthèse du contenu
+          </span>
+          <div id="detailEntitiesBadges" class="flex flex-wrap gap-1.5 mb-3">
+            <!-- Badges des entités clés -->
+          </div>
+          <div id="detailSummaryContent" class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed border-t border-slate-200 dark:border-slate-700/60 pt-2.5">
+            <!-- Puces bullet style sobres -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Vue Grille (Alternative) -->
+    <section id="gridPane" class="hidden absolute inset-0 bg-slate-50 dark:bg-[#090d16] p-6 overflow-y-auto">
+      <div id="gridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Cartes en mode grille -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 dark:bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs flex items-center gap-2 transform translate-y-20 opacity-0 transition duration-300 z-50">
+    <i id="toastIcon" class="fa-solid fa-check text-dose-400"></i>
+    <span id="toastMsg">Opération réussie</span>
+  </div>
+
+  <!-- Logique Applicative Frontend -->
+  <script>
+    const API_BASE = window.location.pathname.endsWith('/') ? window.location.pathname.slice(0, -1) : window.location.pathname;
+    let filesData = [];
+    let currentScanId = null;
+    let currentSelectedIndex = -1;
+    let currentTagFilter = 'ALL';
+    let isScanRunning = false;
+    let scanAbortController = null;
+    let envData = null;
+
+    // Bascule Thème Sombre / Clair avec localStorage
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateThemeIcon(isDark);
+    }
+
+    function updateThemeIcon(isDark) {
+      const icon = document.getElementById('themeIcon');
+      if (!icon) return;
+      if (isDark) {
+        icon.className = 'fa-solid fa-sun text-xs text-dose-400';
+      } else {
+        icon.className = 'fa-solid fa-moon text-xs text-slate-700';
+      }
+    }
+
+    // Bascule Volet Split / Vue Grille
+    function switchView(view) {
+      const leftPane = document.getElementById('leftPane');
+      const rightPane = document.getElementById('rightPane');
+      const gridPane = document.getElementById('gridPane');
+      const btnSplit = document.getElementById('btnViewSplit');
+      const btnGrid = document.getElementById('btnViewGrid');
+
+      if (view === 'grid') {
+        gridPane.classList.remove('hidden');
+        leftPane.classList.add('hidden');
+        rightPane.classList.add('hidden');
+        btnGrid.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
+        btnSplit.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
+      } else {
+        gridPane.classList.add('hidden');
+        leftPane.classList.remove('hidden');
+        rightPane.classList.remove('hidden');
+        btnSplit.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
+        btnGrid.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
+      }
+    }
+
+    // Gestion du sélecteur de mode IA (Double fonctionnement CEA / VPS)
+    function onModeChange() {
+      const modeSelect = document.getElementById('modeSelect');
+      if (modeSelect) {
+        localStorage.setItem('filesens_mode', modeSelect.value);
+        updateEnvBadgeText();
+      }
+    }
+
+    async function loadEnvironmentInfo() {
+      try {
+        const resp = await fetch(`${API_BASE}/api/environment`);
+        if (!resp.ok) return;
+        envData = await resp.json();
+        
+        const modeSelect = document.getElementById('modeSelect');
+        const savedMode = localStorage.getItem('filesens_mode') || envData.configured_mode || 'auto';
+        if (modeSelect) modeSelect.value = savedMode;
+        
+        updateEnvBadgeText();
+      } catch (e) {
+        console.warn('Erreur diagnostic environnement:', e);
+      }
+    }
+
+    function updateEnvBadgeText() {
+      if (!envData) return;
+      const envBadge = document.getElementById('envBadge');
+      const envDot = document.getElementById('envDot');
+      const envLabel = document.getElementById('envLabel');
+      const modeSelect = document.getElementById('modeSelect');
+      const currentMode = modeSelect ? modeSelect.value : 'auto';
+
+      if (!envBadge || !envLabel) return;
+      envBadge.classList.remove('hidden');
+
+      const sum = envData.keys_summary || {};
+      const keysDesc = `Gemini: ${sum.gemini || 0}, Groq: ${sum.groq || 0}, OpenRouter: ${sum.openrouter || 0}, DeepSeek: ${sum.deepseek || 0}`;
+
+      if (currentMode === 'external') {
+        envDot.className = 'w-2 h-2 rounded-full bg-amber-500';
+        envLabel.textContent = 'APIs Externes (.env)';
+        envBadge.title = `Mode forcé APIs externes (Maïa désactivé) | Clés actives : ${keysDesc}`;
+      } else if (currentMode === 'maia') {
+        envDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        envLabel.textContent = 'Maïa Chat CEA';
+        envBadge.title = `Mode forcé Maïa Chat CEA | Hôte : ${envData.maia_host} (Port 443 joignable : ${envData.maia_reachable ? 'OUI' : 'NON'})`;
+      } else {
+        // Mode Auto
+        if (envData.is_cea && envData.maia_reachable) {
+          envDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+          envLabel.textContent = 'Réseau CEA (Auto)';
+          envBadge.title = `Détecté sur le réseau CEA (${envData.fqdn || envData.hostname}) | Priorité Maïa avec secours .env`;
+        } else {
+          envDot.className = 'w-2 h-2 rounded-full bg-blue-500';
+          envLabel.textContent = 'VPS / Externe (Auto)';
+          envBadge.title = `Détecté hors réseau CEA | Utilisation directe des APIs externes du .env (${keysDesc})`;
+        }
+      }
+    }
+
+    // Formatage propre des hashtags
+    function formatHashtag(k) {
+      if (!k) return '';
+      let str = String(k).trim().replace(/^#+/, '');
+      str = str.replace(/[\s\-_]+/g, '_');
+      return `#${str}`;
+    }
+
+    // Libellé court du type de fichier
+    function getFileTypeLabel(f) {
+      const ext = (f.ext || '').toUpperCase().replace('.', '');
+      if (f.family === 'image') return ext ? `IMAGE ${ext}` : 'IMAGE';
+      if (ext === 'PDF') return 'PDF';
+      if (['DOCX', 'DOC'].includes(ext)) return 'WORD';
+      if (['XLSX', 'XLS', 'CSV'].includes(ext)) return 'EXCEL';
+      if (['PPTX', 'PPT'].includes(ext)) return 'POWERPOINT';
+      return ext || 'FICHIER';
+    }
+
+    // Toast de notification
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toastIcon');
+      const msgEl = document.getElementById('toastMsg');
+      msgEl.innerText = msg;
+      icon.className = isError ? 'fa-solid fa-circle-exclamation text-red-400' : 'fa-solid fa-check text-dose-400';
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 4000);
+    }
+
+    // Lancement du scan
+    async function startScan(forceRescan = false) {
+      const dirInput = document.getElementById('dirInput');
+      const dir = dirInput.value.trim().replace(/^["']|["']$/g, '');
+      if (!dir) {
+        showToast("Veuillez indiquer un chemin de dossier à analyser (ex: demo_folder).", true);
+        dirInput.focus();
+        return;
+      }
+
+      const btnScan = document.getElementById('btnScan');
+      const btnStop = document.getElementById('btnStopScan');
+      const btnRescan = document.getElementById('btnRescan');
+
+      btnScan.classList.add('hidden');
+      btnStop.classList.remove('hidden');
+      btnStop.disabled = false;
+      btnStop.innerHTML = `<i class="fa-solid fa-circle-stop"></i> Arrêter`;
+      btnRescan.disabled = true;
+      isScanRunning = true;
+
+      scanAbortController = new AbortController();
+
+      try {
+        const modeSelect = document.getElementById('modeSelect');
+        const selectedMode = modeSelect ? modeSelect.value : 'auto';
+
+        const resp = await fetch(`${API_BASE}/api/scan`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ directory: dir, recursive: true, force_rescan: forceRescan, mode: selectedMode }),
+          signal: scanAbortController.signal
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Erreur lors de l\'analyse');
+
+        currentScanId = data.scan_id;
+        filesData = data.files || [];
+        const warningBanner = document.getElementById('aiWarnings');
+        const warnings = data.warnings || [];
+        warningBanner.textContent = warnings.join('\n');
+        warningBanner.classList.toggle('hidden', warnings.length === 0);
+        currentSelectedIndex = -1;
+        
+        if (data.was_cancelled) {
+          showToast(`⏹ Analyse interrompue (${filesData.length} fichier(s) enregistrés en cache)`);
+        } else if (data.from_cache) {
+          showToast(`⚡ ${filesData.length} fichier(s) chargés instantanément depuis le cache !`);
+        } else {
+          showToast(`✓ ${filesData.length} fichier(s) analysés avec succès !`);
+        }
+
+        renderTagFilters();
+        applyFilters();
+        if (filesData.length > 0) {
+          selectFile(0);
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          showToast("⏹ Analyse interrompue par l'utilisateur.");
+        } else {
+          showToast(err.message, true);
+        }
+      } finally {
+        isScanRunning = false;
+        scanAbortController = null;
+        btnStop.classList.add('hidden');
+        btnScan.classList.remove('hidden');
+        btnScan.disabled = false;
+        btnRescan.disabled = false;
+      }
+    }
+
+    // Interruption du scan
+    async function stopScan() {
+      const btnStop = document.getElementById('btnStopScan');
+      btnStop.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Arrêt...`;
+      btnStop.disabled = true;
+
+      try {
+        await fetch(`${API_BASE}/api/scan/cancel`, { method: 'POST' });
+      } catch (e) {
+        console.warn("Échec requête cancel:", e);
+      }
+
+      if (scanAbortController) {
+        scanAbortController.abort();
+      }
+    }
+
+    // Rendu des pastilles de filtres (Étiquettes / Hashtags découverts)
+    function renderTagFilters() {
+      const tagCount = {};
+      filesData.forEach(f => {
+        (f.keywords || []).forEach(k => {
+          const tag = formatHashtag(k);
+          if (tag) {
+            tagCount[tag] = (tagCount[tag] || 0) + 1;
+          }
+        });
+      });
+
+      const container = document.getElementById('tagFilters');
+      let html = `
+        <button onclick="filterByTag('ALL')" class="tag-pill ${currentTagFilter === 'ALL' ? 'bg-dose-600 text-white font-bold' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'} px-2.5 py-0.5 rounded-full text-xs transition shadow-2xs whitespace-nowrap">
+          Tous (${filesData.length})
+        </button>
+      `;
+
+      Object.keys(tagCount).sort((a, b) => tagCount[b] - tagCount[a]).forEach(tag => {
+        const active = currentTagFilter === tag;
+        html += `
+          <button onclick="filterByTag('${tag}')" class="tag-pill ${active ? 'bg-dose-600 text-white font-bold' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'} px-2.5 py-0.5 rounded-full text-xs transition shadow-2xs whitespace-nowrap">
+            ${tag} <span class="text-[10px] opacity-75">(${tagCount[tag]})</span>
+          </button>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function filterByTag(tag) {
+      currentTagFilter = tag;
+      renderTagFilters();
+      applyFilters();
+    }
+
+    // Filtrage et Rendu
+    function applyFilters() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const filtered = filesData.filter(f => {
+        if (f.is_trashed) return false;
+
+        const fileTags = (f.keywords || []).map(formatHashtag);
+        const matchesTag = currentTagFilter === 'ALL' || fileTags.includes(currentTagFilter);
+
+        const matchesQuery = !query ||
+          f.filename.toLowerCase().includes(query) ||
+          (f.parent_dir && f.parent_dir.toLowerCase().includes(query)) ||
+          fileTags.some(t => t.toLowerCase().includes(query)) ||
+          (f.keywords && f.keywords.some(k => k.toLowerCase().includes(query))) ||
+          (f.key_entities && f.key_entities.some(e => String(e).toLowerCase().includes(query))) ||
+          (f.summary && f.summary.toLowerCase().includes(query));
+
+        return matchesTag && matchesQuery;
+      });
+
+      document.getElementById('filesCountDisplay').innerText = `${filtered.length} fichier(s)`;
+      renderList(filtered);
+      renderGrid(filtered);
+    }
+
+    // Rendu de la Liste (Volet Gauche) avec dossier parent bien visible et sélection contrastée
+    function renderList(files) {
+      const container = document.getElementById('fileListContainer');
+      if (files.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 dark:text-slate-500">Aucun fichier correspondant.</div>`;
+        return;
+      }
+
+      container.innerHTML = files.map((f) => {
+        const isSelected = filesData.indexOf(f) === currentSelectedIndex;
+        const ext = (f.ext || '').toLowerCase();
+        const iconClass = f.family === 'image' ? 'fa-file-image text-dose-500' :
+                          ext === '.pdf' ? 'fa-file-pdf text-red-500' :
+                          ['.docx', '.doc'].includes(ext) ? 'fa-file-word text-blue-500' :
+                          ['.xlsx', '.xls', '.csv'].includes(ext) ? 'fa-file-excel text-emerald-500' :
+                          'fa-file-lines text-slate-400';
+
+        const tagsHtml = (f.keywords || []).map(k => {
+          const t = formatHashtag(k);
+          return `<span class="text-[10px] text-dose-600 dark:text-dose-400 font-semibold">${t}</span>`;
+        }).join(' ');
+
+        // Affichage du dossier parent bien en évidence si disponible
+        const folderBadge = f.parent_dir ? `
+          <span class="inline-flex items-center gap-1 text-[10px] font-mono text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 shrink-0">
+            <i class="fa-regular fa-folder text-[9px] text-dose-500"></i> ${f.parent_dir}/
+          </span>
+        ` : '';
+
+        return `
+          <div id="row-${f.id}" onclick="selectFileById('${f.id}')"
+            class="file-row px-3.5 py-2.5 flex items-center justify-between cursor-pointer transition select-none ${
+              isSelected
+                ? 'bg-dose-50/90 dark:bg-dose-950/40 border-l-4 border-dose-600 dark:border-dose-500 shadow-xs'
+                : 'bg-white dark:bg-[#0b0f19] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
+            }">
+            <div class="flex items-center space-x-3 overflow-hidden">
+              <div class="w-8 h-8 rounded-lg ${isSelected ? 'bg-white dark:bg-slate-800 shadow-xs' : 'bg-slate-100 dark:bg-slate-800'} flex items-center justify-center flex-shrink-0 text-sm">
+                <i class="fa-solid ${iconClass}"></i>
+              </div>
+              <div class="truncate">
+                <div class="flex items-center gap-1.5 truncate">
+                  ${folderBadge}
+                  <span class="text-xs truncate ${isSelected ? 'font-black text-slate-900 dark:text-white' : 'font-medium text-slate-700 dark:text-slate-300'}">
+                    ${f.filename}
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-400 truncate flex items-center gap-2 mt-0.5">
+                  <span class="truncate">${tagsHtml || `<span class="italic text-slate-400">Sans étiquette</span>`}</span>
+                  <span>•</span>
+                  <span>${f.size_formatted}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center pl-2">
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                ${getFileTypeLabel(f)}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Rendu Vue Grille
+    function renderGrid(files) {
+      const grid = document.getElementById('gridContainer');
+      grid.innerHTML = files.map(f => {
+        const isImg = f.family === 'image';
+        return `
+          <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-between hover:border-dose-500 transition shadow-2xs">
+            <div>
+              <div class="h-36 bg-slate-100 dark:bg-slate-900 rounded-lg mb-2 overflow-hidden flex items-center justify-center">
+                ${isImg ? `<img src="${API_BASE}/api/preview/${f.id}?scan_id=${encodeURIComponent(currentScanId)}" class="w-full h-full object-cover">` : `<i class="fa-regular fa-file text-4xl text-slate-400"></i>`}
+              </div>
+              <span class="text-xs font-bold text-slate-900 dark:text-slate-100 block truncate">${f.filename}</span>
+              <div class="flex flex-wrap gap-1 my-1.5">
+                ${(f.keywords || []).map(k => `<span class="text-[10px] bg-dose-50 dark:bg-dose-950/60 text-dose-600 dark:text-dose-400 px-1.5 py-0.5 rounded font-semibold">${formatHashtag(k)}</span>`).join('')}
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">${f.summary || ''}</p>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+              <span class="text-[10px] font-bold text-dose-600 uppercase">${getFileTypeLabel(f)}</span>
+              <button onclick="selectFileById('${f.id}'); switchView('split');" class="text-xs text-dose-600 hover:text-dose-700 font-medium">
+                Voir <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Défilement automatique fluide (Auto-scroll pour garder le fichier sélectionné toujours visible)
+    function scrollSelectedRowIntoView(id) {
+      const row = document.getElementById(`row-${id}`);
+      if (row) {
+        row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+
+    // Sélection d'un fichier par ID
+    function selectFileById(id) {
+      const idx = filesData.findIndex(f => f.id === id);
+      if (idx !== -1) selectFile(idx);
+    }
+
+    // Affichage des détails et aperçu dans le Volet Droit Épuré
+    async function selectFile(index) {
+      if (index < 0 || index >= filesData.length) return;
+      currentSelectedIndex = index;
+      const f = filesData[index];
+
+      // Mettre à jour visuellement les lignes de la liste pour marquer en gras le fichier actif
+      document.querySelectorAll('.file-row').forEach(el => {
+        el.classList.remove('bg-dose-50/90', 'dark:bg-dose-950/40', 'border-l-4', 'border-dose-600', 'dark:border-dose-500', 'shadow-xs');
+        el.classList.add('bg-white', 'dark:bg-[#0b0f19]');
+      });
+      const activeRow = document.getElementById(`row-${f.id}`);
+      if (activeRow) {
+        activeRow.classList.remove('bg-white', 'dark:bg-[#0b0f19]');
+        activeRow.classList.add('bg-dose-50/90', 'dark:bg-dose-950/40', 'border-l-4', 'border-dose-600', 'dark:border-dose-500', 'shadow-xs');
+      }
+
+      // Auto-scroll immédiat
+      scrollSelectedRowIntoView(f.id);
+
+      document.getElementById('previewEmptyState').classList.add('hidden');
+      document.getElementById('previewContent').classList.remove('hidden');
+
+      // 1. Visuel EN PREMIER (TOUT EN HAUT)
+      const visualCard = document.getElementById('visualCard');
+      const mediaBox = document.getElementById('previewMediaContainer');
+      const extraLink = document.getElementById('previewExtraLink');
+      extraLink.classList.add('hidden');
+      const ext = (f.ext || '').toLowerCase();
+      const hasVisual = (f.family === 'image') || (ext === '.pdf') || (['.docx', '.doc'].includes(ext));
+
+      if (f.family === 'image') {
+        visualCard.classList.remove('hidden');
+        mediaBox.innerHTML = `
+          <img src="${API_BASE}/api/preview/${f.id}?scan_id=${encodeURIComponent(currentScanId)}"
+            class="max-h-[440px] max-w-full rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 object-contain mx-auto">
+        `;
+      } else if (ext === '.pdf') {
+        visualCard.classList.remove('hidden');
+        const pdfUrl = `${API_BASE}/api/preview/${f.id}?scan_id=${encodeURIComponent(currentScanId)}`;
+        mediaBox.innerHTML = `
+          <div class="w-full flex flex-col h-[500px]">
+            <iframe src="${pdfUrl}#toolbar=0&navpanes=0"
+              class="w-full flex-1 rounded-lg border border-slate-200 dark:border-slate-800 shadow-2xs bg-white"></iframe>
+          </div>
+        `;
+        extraLink.innerHTML = `<a href="${pdfUrl}" target="_blank" class="text-xs text-dose-600 dark:text-dose-400 hover:underline inline-flex items-center gap-1 font-medium"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Ouvrir le PDF dans un nouvel onglet</a>`;
+        extraLink.classList.remove('hidden');
+      } else if (['.docx', '.doc'].includes(ext)) {
+        visualCard.classList.remove('hidden');
+        mediaBox.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs"><i class="fa-solid fa-spinner fa-spin text-lg text-dose-600 mb-2 block"></i> Chargement du document Word...</div>`;
+        try {
+          const resp = await fetch(`${API_BASE}/api/preview-docx/${f.id}?scan_id=${encodeURIComponent(currentScanId)}`);
+          const docData = await resp.json();
+          if (docData.html) {
+            mediaBox.innerHTML = `
+              <div class="w-full max-h-[460px] overflow-y-auto p-5 bg-white text-slate-900 rounded-lg shadow-inner text-xs leading-relaxed border border-slate-200">
+                ${docData.html}
+              </div>
+            `;
+          } else {
+            mediaBox.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Aperçu direct non disponible pour ce document Word.</div>`;
+          }
+        } catch (e) {
+          mediaBox.innerHTML = `<div class="p-8 text-center text-red-500 text-xs">Erreur lors de la lecture du document Word.</div>`;
+        }
+      } else {
+        // Pas de visuel direct (texte, tableur, script) : masquer la boîte visuelle pour mettre directement les mots-clés
+        visualCard.classList.add('hidden');
+      }
+
+      // 2. Type de fichier EN TRÈS GROS + métadonnées sobres
+      document.getElementById('detailFileTypeBig').innerText = getFileTypeLabel(f);
+      document.getElementById('detailOriginalName').innerText = f.filename;
+      document.getElementById('detailMeta').innerText = `${f.size_formatted} • Date : ${f.date_display || 'Inconnue'}`;
+
+      // 3. Étiquettes identifiées (3 mots-clés principaux / hashtags)
+      const tagsBox = document.getElementById('detailTagsList');
+      const tags = (f.keywords || []).map(formatHashtag).filter(Boolean).slice(0, 3);
+      if (tags.length > 0) {
+        tagsBox.innerHTML = tags.map(t => `
+          <button onclick="filterByTag('${t}')"
+            class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-dose-50 text-dose-700 hover:bg-dose-100 dark:bg-dose-950/70 dark:text-dose-300 dark:hover:bg-dose-900 border border-dose-200 dark:border-dose-900/80 transition shadow-2xs">
+            <i class="fa-solid fa-hashtag text-[10px] text-dose-500"></i> ${t.replace(/^#/, '')}
+          </button>
+        `).join('');
+      } else {
+        tagsBox.innerHTML = `<span class="text-xs text-slate-400 italic">Aucune étiquette principale identifiée.</span>`;
+      }
+
+      // 4. Mots-clés / Entités concrètes (~10 entités réelles : OZO, Aix-Marseille Université, etc.)
+      const entitiesBox = document.getElementById('detailEntitiesBadges');
+      const summaryBox = document.getElementById('detailSummaryContent');
+      
+      // Extraction des entités concrètes
+      let entities = Array.isArray(f.key_entities) && f.key_entities.length > 0 ? f.key_entities : [];
+      if (entities.length === 0 && f.summary) {
+        // Repli : découper les lignes de summary
+        entities = f.summary.split('\n').map(l => l.replace(/^[\-•\*\s]+/, '').trim()).filter(Boolean);
+      }
+      if (entities.length === 0 && Array.isArray(f.keywords)) {
+        entities = f.keywords;
+      }
+
+      if (entities.length > 0) {
+        entitiesBox.innerHTML = entities.map(item => `
+          <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-dose-500 mr-1.5"></span>
+            ${item}
+          </span>
+        `).join('');
+      } else {
+        entitiesBox.innerHTML = `<span class="text-xs text-slate-400 italic">Aucune entité extraite.</span>`;
+      }
+
+      // Puces sobres
+      const rawSummary = f.summary || "";
+      const lines = rawSummary.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length > 0) {
+        summaryBox.classList.remove('hidden');
+        summaryBox.innerHTML = `
+          <ul class="space-y-1">
+            ${lines.map(line => {
+              const clean = line.replace(/^[\-•\*\s]+/, '');
+              return `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300"><span class="text-dose-600 font-bold">•</span><span>${clean}</span></li>`;
+            }).join('')}
+          </ul>
+        `;
+      } else {
+        summaryBox.classList.add('hidden');
+      }
+    }
+
+    // Défilement fluide au clavier avec les flèches Haut / Bas
+    document.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault();
+        if (currentSelectedIndex < filesData.length - 1) {
+          selectFile(currentSelectedIndex + 1);
+        }
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault();
+        if (currentSelectedIndex > 0) {
+          selectFile(currentSelectedIndex - 1);
+        }
+      }
+    });
+
+    // Chargement initial au démarrage
+    window.addEventListener('DOMContentLoaded', () => {
+      loadEnvironmentInfo();
+      const isDark = document.documentElement.classList.contains('dark');
+      updateThemeIcon(isDark);
+      const dirInput = document.getElementById('dirInput');
+      if (dirInput) dirInput.focus();
+    });
+  </script>
+</body>
+</html>
