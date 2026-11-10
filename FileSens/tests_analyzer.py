@@ -609,5 +609,29 @@ class TestFileAnalyzer(unittest.TestCase):
         self.assertIn("gemini", data["keys_summary"])
         self.assertIn("groq", data["keys_summary"])
 
+    def test_update_tags_api(self):
+        """Vérifie la mise à jour des mots-clés/étiquettes d'un fichier via /api/update-tags."""
+        client = app_module.app.test_client()
+        scan_id = "test-scan-tags"
+        file_id = "test-file-tags"
+        app_module.ANALYSIS_CACHE[scan_id] = {
+            file_id: {
+                "id": file_id,
+                "abs_path": str(self.txt_path),
+                "filename": self.txt_path.name,
+                "keywords": ["Ancien_Tag"]
+            }
+        }
+        resp = client.post("/api/update-tags", json={
+            "scan_id": scan_id,
+            "file_id": file_id,
+            "keywords": ["#Nouveau_Tag", "Second_Tag"]
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertEqual(data["status"], "success")
+        self.assertEqual(data["keywords"], ["Nouveau_Tag", "Second_Tag"])
+        self.assertEqual(app_module.ANALYSIS_CACHE[scan_id][file_id]["keywords"], ["Nouveau_Tag", "Second_Tag"])
+
 if __name__ == "__main__":
     unittest.main()

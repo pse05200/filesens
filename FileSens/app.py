@@ -330,10 +330,15 @@ def batch_api():
                 file_info["is_non_explicit_name"] = False
                 results.append({"id": fid, "status": "renamed", "filename": new_p.name})
             elif action == 'move_category':
-                cat_folder = file_info.get("category", "Divers").replace("/", "_").strip()
+                custom_subfolder = data.get("subfolder")
+                if custom_subfolder and str(custom_subfolder).strip():
+                    cat_folder = str(custom_subfolder).replace("/", "_").strip()
+                else:
+                    cat_folder = file_info.get("category", "Divers").replace("/", "_").strip()
                 new_p = file_ops.move_file(file_info["abs_path"], cat_folder)
                 file_info["abs_path"] = str(new_p)
-                results.append({"id": fid, "status": "moved", "path": str(new_p)})
+                file_info["parent_dir"] = new_p.parent.name
+                results.append({"id": fid, "status": "moved", "path": str(new_p), "parent_dir": new_p.parent.name})
             elif action == 'trash':
                 new_p = file_ops.trash_file(file_info["abs_path"])
                 file_info["abs_path"] = str(new_p)
@@ -341,6 +346,22 @@ def batch_api():
                 results.append({"id": fid, "status": "trashed"})
         except Exception as e:
             results.append({"id": fid, "error": str(e)})
+
+    # Mise à jour du cache sur disque si applicable
+    try:
+        for fid in file_ids:
+            item = scan_results.get(fid)
+            if item and item.get("abs_path"):
+                p = Path(item["abs_path"])
+                for cand in [p.parent, p.parent.parent]:
+                    cache_cand = cand / ".filesens_cache.json"
+                    if cache_cand.exists():
+                        cached_data = load_cached_results(cache_cand)
+                        cached_data[item["abs_path"]] = item
+                        save_cached_results(cache_cand, list(cached_data.values()))
+                        break
+    except Exception as e:
+        app.logger.warning(f"Erreur mise à jour cache disque batch: {e}")
 
     return jsonify({"status": "success", "processed": results})
 

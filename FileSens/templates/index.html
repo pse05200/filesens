@@ -3,27 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IRIS - FileSens (Dose-Shield Edition)</title>
+  <title>IRIS - FileSens (Analyse, Étiquettes & Aperçus)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Configuration du thème Tailwind style AttenuDose Dose-Shield & IRIS
+    // Configuration du thème Tailwind style IRIS (Fond blanc, Rouge Iris, Dark Mode)
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            dose: {
-              50: '#fff7ed',
-              100: '#ffedd5',
-              200: '#fed7aa',
-              300: '#fdba74',
-              400: '#fb923c',
-              500: '#f97316',
-              600: '#f25c05', // Orange Dose-Shield officiel
-              700: '#ea580c',
-              800: '#c2410c',
-              900: '#7c2d12',
-              950: '#431407',
+            iris: {
+              50: '#fef2f2',
+              100: '#fee2e2',
+              200: '#fecaca',
+              500: '#ef4444',
+              600: '#dc2626', // Rouge IRIS officiel
+              700: '#b91c1c',
+              800: '#991b1b',
+              900: '#7f1d1d',
             }
           }
         }
@@ -39,12 +36,12 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Scrollbar sobre style AttenuDose */
+    /* Scrollbar discrète style IRIS */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     .dark ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #f25c05; }
+    ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
     .kbd-shortcut {
       background: #f1f5f9;
       border: 1px solid #cbd5e1;
@@ -61,50 +58,40 @@
     }
   </style>
 </head>
-<body class="h-full flex flex-col font-sans overflow-hidden bg-slate-50 text-slate-800 dark:bg-[#090d16] dark:text-slate-100 transition-colors duration-150">
+<body class="h-full flex flex-col font-sans overflow-hidden bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-150">
 
-  <!-- En-tête Supérieur Style AttenuDose Dose-Shield & IRIS -->
-  <header class="bg-white dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 px-5 py-2.5 flex items-center justify-between z-10 shrink-0 shadow-sm">
+  <!-- En-tête Supérieur Style IRIS (Fond blanc, accent rouge) -->
+  <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-5 py-2.5 flex items-center justify-between z-10 shrink-0 shadow-xs">
     <div class="flex items-center space-x-3">
-      <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-dose-50 dark:bg-dose-950/60 border border-dose-200 dark:border-dose-900 text-dose-600 dark:text-dose-400 font-black text-lg shadow-2xs">
-        <i class="fa-solid fa-shield-halved"></i>
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 font-black text-lg shadow-2xs">
+        <i class="fa-solid fa-bolt"></i>
       </div>
       <div>
         <h1 class="text-base font-bold leading-tight flex items-center gap-2 text-slate-900 dark:text-white">
-          IRIS <span class="text-xs font-black text-dose-600 dark:text-dose-500 tracking-wider uppercase">FileSens</span>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-dose-200 bg-dose-50 text-dose-700 dark:bg-dose-950/50 dark:border-dose-900 dark:text-dose-300">
-            Dose-Shield
+          IRIS <span class="text-xs font-bold text-red-600 dark:text-red-400 tracking-wide uppercase">FileSens</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-red-200 bg-red-50 text-red-700 dark:bg-red-950/50 dark:border-red-900 dark:text-red-300">
+            Étiquettes & Vision
           </span>
         </h1>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Aperçus visuels, navigation fluide, étiquettes & entités clés</p>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Aperçus PDF / Word, étiquettes thématiques & résumés sobres</p>
       </div>
     </div>
 
-    <!-- Barre d'analyse de répertoire & sélecteur de mode -->
-    <div class="flex items-center space-x-2 flex-1 max-w-2xl mx-6">
+    <!-- Barre d'analyse de répertoire -->
+    <div class="flex items-center space-x-2 flex-1 max-w-xl mx-6">
       <div class="relative w-full">
         <i class="fa-solid fa-folder-open absolute left-3 top-2.5 text-slate-400 text-sm"></i>
         <input id="dirInput" type="text" placeholder="Chemin du dossier (ex: demo_folder ou C:\Dossier)..." value=""
           onkeydown="if(event.key === 'Enter') startScan(false)"
-          class="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-dose-600 focus:ring-1 focus:ring-dose-600 transition">
+          class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition">
       </div>
-
-      <!-- Sélecteur de Mode IA (Double fonctionnement CEA / VPS) -->
-      <select id="modeSelect" onchange="onModeChange()"
-        class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:border-dose-600 transition cursor-pointer shadow-2xs shrink-0"
-        title="Sélectionner le mode d'analyse IA">
-        <option value="auto">⚡ Auto (CEA / VPS)</option>
-        <option value="maia">🏛️ Maïa CEA</option>
-        <option value="external">🌐 APIs Externes (.env)</option>
-      </select>
-
       <button id="btnScan" onclick="startScan(false)"
-        class="bg-dose-600 hover:bg-dose-700 text-white transition px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap shadow-xs"
+        class="bg-red-600 hover:bg-red-700 text-white transition px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap shadow-xs"
         title="Démarrer l'analyse du dossier">
         <i class="fa-solid fa-play text-[11px]"></i> Analyser
       </button>
       <button id="btnStopScan" onclick="stopScan()"
-        class="hidden bg-slate-800 hover:bg-slate-900 dark:bg-dose-700 dark:hover:bg-dose-800 text-white transition px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap shadow-xs animate-pulse"
+        class="hidden bg-slate-800 hover:bg-slate-900 dark:bg-red-700 dark:hover:bg-red-800 text-white transition px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap shadow-xs animate-pulse"
         title="Arrêter l'analyse en cours">
         <i class="fa-solid fa-circle-stop"></i> Arrêter
       </button>
@@ -115,14 +102,8 @@
       </button>
     </div>
 
-    <!-- Outils, Diagnostic Réseau et Bascule Mode Sombre -->
+    <!-- Raccourcis et Bascule Mode Sombre -->
     <div class="flex items-center space-x-3">
-      <!-- Badge Environnement Réseau Détecté -->
-      <div id="envBadge" class="hidden sm:flex items-center space-x-1.5 text-[11px] font-medium px-2 py-1 rounded-lg border bg-slate-100/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300" title="Diagnostic réseau">
-        <span id="envDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
-        <span id="envLabel">Détection...</span>
-      </div>
-
       <div class="hidden xl:flex items-center space-x-1.5 text-xs text-slate-500 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
         <span>Raccourcis :</span>
         <span class="kbd-shortcut">↑ / ↓</span> Défiler
@@ -149,60 +130,130 @@
 
   <div id="aiWarnings" class="hidden bg-amber-50 dark:bg-amber-950/70 border-b border-amber-200 dark:border-amber-700/60 px-4 py-2 text-xs text-amber-800 dark:text-amber-200 whitespace-pre-line" role="status"></div>
 
-  <!-- Barre de Filtres par Étiquettes / Hashtags & Recherche -->
-  <div class="bg-white/80 dark:bg-[#0f172a]/70 border-b border-slate-200 dark:border-slate-800 px-4 py-1.5 flex items-center justify-between text-xs shrink-0 backdrop-blur">
-    <!-- Pastilles de filtres (Hashtags dynamiques) -->
-    <div class="flex items-center space-x-2 overflow-x-auto py-0.5" id="tagFilters">
-      <button onclick="filterByTag('ALL')" class="tag-pill active px-3 py-0.5 rounded-full font-bold bg-dose-600 text-white shadow-2xs whitespace-nowrap">
-        Tous (<span id="countAll">0</span>)
+  <!-- Barre de Recherche & Menu Déroulant des Étiquettes -->
+  <div class="bg-slate-50 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 px-4 py-1.5 flex items-center justify-between text-xs shrink-0">
+    <div class="flex items-center space-x-2.5">
+      <!-- Bouton d'affichage/masquage de la colonne fine des étiquettes à gauche -->
+      <button id="btnToggleTagsSidebar" onclick="toggleTagsSidebar()" type="button"
+        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 shadow-2xs transition"
+        title="Afficher ou masquer la colonne fine des étiquettes à gauche">
+        <i class="fa-solid fa-tags text-dose-600"></i>
+        <span>Colonne étiquettes</span>
       </button>
+
+      <!-- Menu Déroulant des Étiquettes (Dropdown) -->
+      <div class="flex items-center gap-1.5">
+        <label for="tagSelectDropdown" class="text-slate-500 dark:text-slate-400 font-medium text-xs hidden sm:inline">Filtrer par étiquette :</label>
+        <select id="tagSelectDropdown" onchange="filterByTag(this.value)"
+          class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1 font-semibold focus:outline-none focus:border-dose-600 transition shadow-2xs cursor-pointer max-w-xs truncate"
+          title="Sélectionner une étiquette dans le menu déroulant">
+          <option value="ALL">🏷️ Toutes les étiquettes (0)</option>
+        </select>
+      </div>
     </div>
 
-    <!-- Champ de recherche rapide -->
-    <div class="flex items-center space-x-2 ml-4">
+    <!-- Champ de recherche rapide texte -->
+    <div class="flex items-center space-x-2">
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-slate-400 text-[11px]"></i>
-        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Filtrer mot-clé, #tag, nom..."
-          class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md pl-7 pr-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-dose-600 transition w-56">
+        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Filtrer mot-clé, nom, texte..."
+          class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg pl-7 pr-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-dose-600 transition w-60 shadow-2xs">
       </div>
     </div>
   </div>
 
-  <!-- Contenu Principal (Double volet Split-View) -->
+  <!-- Contenu Principal (Split-View avec colonne fine des étiquettes) -->
   <main class="flex-1 flex overflow-hidden relative">
 
-    <!-- Volet Gauche : Liste des Fichiers Déroulante avec répertoire clair & auto-scroll -->
-    <section id="leftPane" class="w-2/5 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden bg-slate-50 dark:bg-[#0b0f19]">
-      <div class="px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-[#0f172a]">
-        <span class="font-bold uppercase tracking-wider text-[11px] text-slate-600 dark:text-slate-300">Fichiers répertoriés</span>
-        <span id="filesCountDisplay" class="font-bold text-dose-600 dark:text-dose-400">0 fichier</span>
+    <!-- Colonne Fine Tout à Gauche : Filtre par Étiquettes / Tags -->
+    <aside id="tagsSidebar" class="w-48 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] flex flex-col shrink-0 overflow-hidden transition-all duration-200">
+      <div class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 bg-slate-50/80 dark:bg-slate-900/60 shrink-0">
+        <span class="font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+          <i class="fa-solid fa-tags text-dose-600"></i> Étiquettes
+        </span>
+        <span id="tagsCountBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">0</span>
       </div>
 
-      <!-- Liste scrollable des fichiers -->
+      <!-- Liste verticale scrollable des étiquettes -->
+      <div id="tagsVerticalList" class="flex-1 overflow-y-auto p-1.5 space-y-0.5 text-xs">
+        <button onclick="filterByTag('ALL')" id="tagItem-ALL"
+          class="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between font-bold text-dose-700 bg-dose-50 dark:bg-dose-950/60 dark:text-dose-300 transition">
+          <span class="truncate flex items-center gap-1.5">
+            <i class="fa-solid fa-layer-group text-[11px] text-dose-500"></i>
+            <span>Toutes</span>
+          </span>
+          <span id="countAll" class="text-[10px] font-semibold opacity-75">0</span>
+        </button>
+        <!-- Injectés dynamiquement -->
+      </div>
+    </aside>
+
+    <!-- Volet Gauche : Liste des Fichiers Déroulante -->
+    <section id="leftPane" class="w-[38%] border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden bg-slate-50/60 dark:bg-slate-900/40 shrink-0">
+      <div class="px-3.5 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900/60 shrink-0">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)"
+            class="rounded border-slate-300 dark:border-slate-700 text-dose-600 focus:ring-dose-500 cursor-pointer"
+            title="Tout sélectionner / Tout désélectionner">
+          <label for="selectAllCheckbox" class="font-semibold uppercase tracking-wider text-[11px] cursor-pointer select-none">
+            Fichiers répertoriés
+          </label>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="selectedCountBadge" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full bg-dose-100 text-dose-700 dark:bg-dose-950 dark:text-dose-300 border border-dose-200 dark:border-dose-900">
+            0 sélectionné
+          </span>
+          <span id="filesCountDisplay" class="font-bold text-slate-700 dark:text-slate-300">0 fichier</span>
+        </div>
+      </div>
+
+      <!-- Barre d'actions groupées (active dès qu'au moins 1 fichier est sélectionné) -->
+      <div id="batchActionBar" class="hidden px-3.5 py-2 bg-dose-50/95 dark:bg-dose-950/80 border-b border-dose-200 dark:border-dose-900/80 flex items-center justify-between gap-2 shrink-0">
+        <div class="text-xs font-semibold text-dose-900 dark:text-dose-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-check-double text-dose-600"></i>
+          <span id="batchSelectedText">0 sélectionné</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="openMoveModal()" type="button"
+            class="px-2.5 py-1 rounded-lg bg-dose-600 hover:bg-dose-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition"
+            title="Déplacer les fichiers sélectionnés (Raccourci M)">
+            <i class="fa-solid fa-folder-tree"></i>
+            <span>Déplacer (M)</span>
+          </button>
+          <button onclick="clearSelection()" type="button"
+            class="px-2 py-1 rounded-lg bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-xs transition"
+            title="Désélectionner tout">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Liste des fichiers scrollable -->
       <div id="fileListContainer" class="flex-1 overflow-y-auto divide-y divide-slate-200/80 dark:divide-slate-800/80 focus:outline-none" tabindex="0">
+        <!-- Message initial -->
         <div class="p-10 text-center text-slate-400 dark:text-slate-500">
           <i class="fa-regular fa-folder-open text-4xl mb-2 text-slate-300 dark:text-slate-600 block"></i>
-          Entrez le chemin d'un dossier et cliquez sur <b class="text-dose-600 dark:text-dose-400">Analyser</b> pour afficher les fichiers.
+          Entrez le chemin d'un dossier et cliquez sur <b class="text-slate-600 dark:text-slate-300">Analyser</b> pour afficher les fichiers.
         </div>
       </div>
     </section>
 
-    <!-- Volet Droit : Panneau d'Aperçu Épuré Style Dose-Shield (Visuel en premier) -->
-    <section id="rightPane" class="w-3/5 flex flex-col overflow-y-auto bg-white dark:bg-[#0f172a] p-5">
+    <!-- Volet Droit : Panneau d'Aperçu Épuré Style IRIS -->
+    <section id="rightPane" class="w-3/5 flex flex-col overflow-y-auto bg-white dark:bg-slate-900 p-5">
       <div id="previewEmptyState" class="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 text-center">
         <i class="fa-regular fa-file text-5xl mb-3 text-slate-300 dark:text-slate-600"></i>
-        <p class="text-sm font-medium">Sélectionnez un fichier dans la liste pour afficher son aperçu et ses entités clés.</p>
+        <p class="text-sm font-medium">Sélectionnez un fichier dans la liste pour afficher son aperçu et ses étiquettes.</p>
       </div>
 
       <div id="previewContent" class="hidden flex flex-col space-y-4">
 
         <!-- 1. ZONE D'APERÇU DU FICHIER EN PREMIER (TOUT EN HAUT) -->
-        <div id="visualCard" class="w-full bg-slate-50 dark:bg-[#090d16] rounded-xl border border-slate-200 dark:border-slate-800 p-3 flex flex-col items-center justify-center min-h-[360px] shadow-sm">
+        <div class="w-full bg-slate-50 dark:bg-slate-950/70 rounded-xl border border-slate-200 dark:border-slate-800 p-3 flex flex-col items-center justify-center min-h-[380px] shadow-2xs">
           <div id="previewMediaContainer" class="w-full h-full flex flex-col items-center justify-center">
             <!-- Image, iframe PDF ou rendu Word inséré ici -->
           </div>
           <div id="previewExtraLink" class="mt-2 text-right w-full hidden">
-            <!-- Lien externe nouvel onglet -->
+            <!-- Lien optionnel nouvel onglet -->
           </div>
         </div>
 
@@ -281,7 +332,7 @@
     </section>
 
     <!-- Vue Grille (Alternative) -->
-    <section id="gridPane" class="hidden absolute inset-0 bg-slate-50 dark:bg-[#090d16] p-6 overflow-y-auto">
+    <section id="gridPane" class="hidden absolute inset-0 bg-slate-50 dark:bg-slate-900 p-6 overflow-y-auto">
       <div id="gridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <!-- Cartes en mode grille -->
       </div>
@@ -289,9 +340,80 @@
 
   </main>
 
+  <!-- Modal Déplacer (Raccourci M) -->
+  <div id="moveModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-folder-tree text-dose-600 dark:text-dose-400"></i>
+          <span>Déplacer les fichiers</span>
+          <span class="kbd-shortcut ml-1">Raccourci M</span>
+        </h3>
+        <button onclick="closeMoveModal()" type="button" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="py-4 space-y-4">
+        <!-- Résumé de la sélection -->
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 text-xs">
+          <div class="font-bold text-slate-800 dark:text-slate-200 mb-1" id="moveModalSummary">
+            1 fichier à déplacer
+          </div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 max-h-24 overflow-y-auto space-y-0.5" id="moveModalFileList">
+            <!-- Liste des fichiers -->
+          </div>
+        </div>
+
+        <!-- Choix du mode de déplacement -->
+        <div class="space-y-2.5 text-xs">
+          <label class="font-semibold text-slate-700 dark:text-slate-300 block">Destination :</label>
+
+          <!-- Option 1 : Classer par catégorie auto -->
+          <label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer transition">
+            <input type="radio" name="moveTargetMode" value="category" id="moveModeCategory" checked onchange="onMoveModeChanged()" class="mt-0.5 text-dose-600 focus:ring-dose-500">
+            <div>
+              <div class="font-bold text-slate-900 dark:text-white">Classer automatiquement par catégorie</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400" id="moveCategoryHelpText">
+                Chaque fichier sera rangé dans le sous-dossier de sa catégorie (ex: Documents & Rapports, Factures & Reçus...).
+              </div>
+            </div>
+          </label>
+
+          <!-- Option 2 : Vers un sous-dossier unique spécifique -->
+          <label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer transition">
+            <input type="radio" name="moveTargetMode" value="custom" id="moveModeCustom" onchange="onMoveModeChanged()" class="mt-0.5 text-dose-600 focus:ring-dose-500">
+            <div class="flex-1">
+              <div class="font-bold text-slate-900 dark:text-white mb-1">Vers un sous-dossier spécifique</div>
+              <input type="text" id="targetSubfolderInput" placeholder="Nom du sous-dossier (ex: Archives, Tri_2026, ...)"
+                class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-dose-600 transition disabled:opacity-50"
+                disabled onkeydown="if(event.key === 'Enter') confirmMove()">
+              <!-- Suggestions rapides -->
+              <div class="flex flex-wrap gap-1 mt-2" id="subfolderQuickSuggestions">
+                <!-- Badges de catégories injectés -->
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2">
+        <button onclick="closeMoveModal()" type="button"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          Annuler (Échap)
+        </button>
+        <button id="btnConfirmMove" onclick="confirmMove()" type="button"
+          class="px-4 py-1.5 rounded-lg text-xs font-bold bg-dose-600 hover:bg-dose-700 text-white shadow-xs flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Déplacer maintenant (Entrée)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Toast -->
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 dark:bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs flex items-center gap-2 transform translate-y-20 opacity-0 transition duration-300 z-50">
-    <i id="toastIcon" class="fa-solid fa-check text-dose-400"></i>
+    <i id="toastIcon" class="fa-solid fa-check text-green-400"></i>
     <span id="toastMsg">Opération réussie</span>
   </div>
 
@@ -302,11 +424,11 @@
     let currentScanId = null;
     let currentSelectedIndex = -1;
     let currentTagFilter = 'ALL';
-    let isScanRunning = false;
+    let currentViewMode = 'split';
     let scanAbortController = null;
-    let envData = null;
+    let isScanRunning = false;
 
-    // Bascule Thème Sombre / Clair avec localStorage
+    // Bascule Dark Mode / Light Mode
     function toggleTheme() {
       const isDark = document.documentElement.classList.toggle('dark');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -315,131 +437,51 @@
 
     function updateThemeIcon(isDark) {
       const icon = document.getElementById('themeIcon');
-      if (!icon) return;
-      if (isDark) {
-        icon.className = 'fa-solid fa-sun text-xs text-dose-400';
-      } else {
-        icon.className = 'fa-solid fa-moon text-xs text-slate-700';
+      if (icon) {
+        icon.className = isDark ? "fa-solid fa-sun text-xs text-amber-400" : "fa-solid fa-moon text-xs text-slate-600";
       }
     }
+    updateThemeIcon(document.documentElement.classList.contains('dark'));
 
-    // Bascule Volet Split / Vue Grille
-    function switchView(view) {
-      const leftPane = document.getElementById('leftPane');
-      const rightPane = document.getElementById('rightPane');
-      const gridPane = document.getElementById('gridPane');
-      const btnSplit = document.getElementById('btnViewSplit');
-      const btnGrid = document.getElementById('btnViewGrid');
-
-      if (view === 'grid') {
-        gridPane.classList.remove('hidden');
-        leftPane.classList.add('hidden');
-        rightPane.classList.add('hidden');
-        btnGrid.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
-        btnSplit.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
-      } else {
-        gridPane.classList.add('hidden');
-        leftPane.classList.remove('hidden');
-        rightPane.classList.remove('hidden');
-        btnSplit.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
-        btnGrid.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
-      }
-    }
-
-    // Gestion du sélecteur de mode IA (Double fonctionnement CEA / VPS)
-    function onModeChange() {
-      const modeSelect = document.getElementById('modeSelect');
-      if (modeSelect) {
-        localStorage.setItem('filesens_mode', modeSelect.value);
-        updateEnvBadgeText();
-      }
-    }
-
-    async function loadEnvironmentInfo() {
-      try {
-        const resp = await fetch(`${API_BASE}/api/environment`);
-        if (!resp.ok) return;
-        envData = await resp.json();
-        
-        const modeSelect = document.getElementById('modeSelect');
-        const savedMode = localStorage.getItem('filesens_mode') || envData.configured_mode || 'auto';
-        if (modeSelect) modeSelect.value = savedMode;
-        
-        updateEnvBadgeText();
-      } catch (e) {
-        console.warn('Erreur diagnostic environnement:', e);
-      }
-    }
-
-    function updateEnvBadgeText() {
-      if (!envData) return;
-      const envBadge = document.getElementById('envBadge');
-      const envDot = document.getElementById('envDot');
-      const envLabel = document.getElementById('envLabel');
-      const modeSelect = document.getElementById('modeSelect');
-      const currentMode = modeSelect ? modeSelect.value : 'auto';
-
-      if (!envBadge || !envLabel) return;
-      envBadge.classList.remove('hidden');
-
-      const sum = envData.keys_summary || {};
-      const keysDesc = `Gemini: ${sum.gemini || 0}, Groq: ${sum.groq || 0}, OpenRouter: ${sum.openrouter || 0}, DeepSeek: ${sum.deepseek || 0}`;
-
-      if (currentMode === 'external') {
-        envDot.className = 'w-2 h-2 rounded-full bg-amber-500';
-        envLabel.textContent = 'APIs Externes (.env)';
-        envBadge.title = `Mode forcé APIs externes (Maïa désactivé) | Clés actives : ${keysDesc}`;
-      } else if (currentMode === 'maia') {
-        envDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-        envLabel.textContent = 'Maïa Chat CEA';
-        envBadge.title = `Mode forcé Maïa Chat CEA | Hôte : ${envData.maia_host} (Port 443 joignable : ${envData.maia_reachable ? 'OUI' : 'NON'})`;
-      } else {
-        // Mode Auto
-        if (envData.is_cea && envData.maia_reachable) {
-          envDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-          envLabel.textContent = 'Réseau CEA (Auto)';
-          envBadge.title = `Détecté sur le réseau CEA (${envData.fqdn || envData.hostname}) | Priorité Maïa avec secours .env`;
-        } else {
-          envDot.className = 'w-2 h-2 rounded-full bg-blue-500';
-          envLabel.textContent = 'VPS / Externe (Auto)';
-          envBadge.title = `Détecté hors réseau CEA | Utilisation directe des APIs externes du .env (${keysDesc})`;
-        }
-      }
-    }
-
-    // Formatage propre des hashtags
-    function formatHashtag(k) {
-      if (!k) return '';
-      let str = String(k).trim().replace(/^#+/, '');
-      str = str.replace(/[\s\-_]+/g, '_');
-      return `#${str}`;
-    }
-
-    // Libellé court du type de fichier
-    function getFileTypeLabel(f) {
-      const ext = (f.ext || '').toUpperCase().replace('.', '');
-      if (f.family === 'image') return ext ? `IMAGE ${ext}` : 'IMAGE';
-      if (ext === 'PDF') return 'PDF';
-      if (['DOCX', 'DOC'].includes(ext)) return 'WORD';
-      if (['XLSX', 'XLS', 'CSV'].includes(ext)) return 'EXCEL';
-      if (['PPTX', 'PPT'].includes(ext)) return 'POWERPOINT';
-      return ext || 'FICHIER';
-    }
-
-    // Toast de notification
+    // Notification Toast
     function showToast(msg, isError = false) {
       const toast = document.getElementById('toast');
-      const icon = document.getElementById('toastIcon');
-      const msgEl = document.getElementById('toastMsg');
-      msgEl.innerText = msg;
-      icon.className = isError ? 'fa-solid fa-circle-exclamation text-red-400' : 'fa-solid fa-check text-dose-400';
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.innerText = msg;
+      toastIcon.className = isError ? "fa-solid fa-triangle-exclamation text-red-400" : "fa-solid fa-check text-green-400";
       toast.classList.remove('translate-y-20', 'opacity-0');
+
       setTimeout(() => {
         toast.classList.add('translate-y-20', 'opacity-0');
-      }, 4000);
+      }, 3000);
     }
 
-    // Lancement du scan
+    // Normalisation d'un mot-clé en hashtag propre
+    function formatHashtag(str) {
+      if (!str) return '';
+      let clean = String(str).trim().replace(/^#+/, '');
+      clean = clean.replace(/[\s\-_]+/g, '_');
+      return clean ? `#${clean}` : '';
+    }
+
+    // Détermination lisible du format de fichier en gros
+    function getFileTypeLabel(file) {
+      const ext = (file.ext || '').toLowerCase();
+      if (ext === '.pdf') return 'PDF';
+      if (['.jpg', '.jpeg'].includes(ext)) return 'JPEG';
+      if (ext === '.png') return 'PNG';
+      if (['.docx', '.doc'].includes(ext)) return 'WORD';
+      if (['.xlsx', '.xls'].includes(ext)) return 'EXCEL';
+      if (['.pptx', '.ppt'].includes(ext)) return 'POWERPOINT';
+      if (ext === '.txt') return 'TEXTE';
+      if (ext === '.csv') return 'CSV';
+      if (['.odt', '.ott'].includes(ext)) return 'OPENOFFICE';
+      return (ext.replace('.', '') || file.family || 'FICHIER').toUpperCase();
+    }
+
+    // Lancement du Scan (au clic uniquement)
     async function startScan(forceRescan = false) {
       const dirInput = document.getElementById('dirInput');
       const dir = dirInput.value.trim().replace(/^["']|["']$/g, '');
@@ -463,13 +505,10 @@
       scanAbortController = new AbortController();
 
       try {
-        const modeSelect = document.getElementById('modeSelect');
-        const selectedMode = modeSelect ? modeSelect.value : 'auto';
-
         const resp = await fetch(`${API_BASE}/api/scan`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ directory: dir, recursive: true, force_rescan: forceRescan, mode: selectedMode }),
+          body: JSON.stringify({ directory: dir, recursive: true, force_rescan: forceRescan }),
           signal: scanAbortController.signal
         });
         const data = await resp.json();
@@ -512,8 +551,9 @@
       }
     }
 
-    // Interruption du scan
+    // Arrêt du Scan
     async function stopScan() {
+      if (!isScanRunning) return;
       const btnStop = document.getElementById('btnStopScan');
       btnStop.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Arrêt...`;
       btnStop.disabled = true;
@@ -543,7 +583,7 @@
 
       const container = document.getElementById('tagFilters');
       let html = `
-        <button onclick="filterByTag('ALL')" class="tag-pill ${currentTagFilter === 'ALL' ? 'bg-dose-600 text-white font-bold' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'} px-2.5 py-0.5 rounded-full text-xs transition shadow-2xs whitespace-nowrap">
+        <button onclick="filterByTag('ALL')" class="tag-pill ${currentTagFilter === 'ALL' ? 'bg-red-600 text-white font-bold' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'} px-2.5 py-0.5 rounded-full text-xs transition shadow-2xs whitespace-nowrap">
           Tous (${filesData.length})
         </button>
       `;
@@ -551,7 +591,7 @@
       Object.keys(tagCount).sort((a, b) => tagCount[b] - tagCount[a]).forEach(tag => {
         const active = currentTagFilter === tag;
         html += `
-          <button onclick="filterByTag('${tag}')" class="tag-pill ${active ? 'bg-dose-600 text-white font-bold' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'} px-2.5 py-0.5 rounded-full text-xs transition shadow-2xs whitespace-nowrap">
+          <button onclick="filterByTag('${tag}')" class="tag-pill ${active ? 'bg-red-600 text-white font-bold' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'} px-2.5 py-0.5 rounded-full text-xs transition shadow-2xs whitespace-nowrap">
             ${tag} <span class="text-[10px] opacity-75">(${tagCount[tag]})</span>
           </button>
         `;
@@ -566,32 +606,142 @@
       applyFilters();
     }
 
-    // Filtrage et Rendu
-    function applyFilters() {
-      const query = document.getElementById('searchInput').value.toLowerCase().trim();
-      const filtered = filesData.filter(f => {
-        if (f.is_trashed) return false;
+    // État de sélection multiple
+    let selectedFileIds = new Set();
+    let lastClickedIndex = -1;
 
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Récupération des fichiers actuellement filtrés
+    function getFilteredFiles() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      return filesData.filter(f => {
+        if (f.is_trashed) return false;
         const fileTags = (f.keywords || []).map(formatHashtag);
         const matchesTag = currentTagFilter === 'ALL' || fileTags.includes(currentTagFilter);
-
         const matchesQuery = !query ||
           f.filename.toLowerCase().includes(query) ||
-          (f.parent_dir && f.parent_dir.toLowerCase().includes(query)) ||
           fileTags.some(t => t.toLowerCase().includes(query)) ||
           (f.keywords && f.keywords.some(k => k.toLowerCase().includes(query))) ||
-          (f.key_entities && f.key_entities.some(e => String(e).toLowerCase().includes(query))) ||
           (f.summary && f.summary.toLowerCase().includes(query));
-
         return matchesTag && matchesQuery;
       });
+    }
 
+    // Filtrage et Rendu
+    function applyFilters() {
+      const filtered = getFilteredFiles();
       document.getElementById('filesCountDisplay').innerText = `${filtered.length} fichier(s)`;
       renderList(filtered);
       renderGrid(filtered);
+      updateSelectionUI();
     }
 
-    // Rendu de la Liste (Volet Gauche) avec dossier parent bien visible et sélection contrastée
+    // Gestion de la sélection par clic / Ctrl / Shift
+    function handleRowClick(event, fileId, index) {
+      if (event.ctrlKey || event.metaKey) {
+        toggleFileSelection(fileId);
+        selectFileById(fileId);
+      } else if (event.shiftKey && lastClickedIndex !== -1) {
+        const start = Math.min(lastClickedIndex, index);
+        const end = Math.max(lastClickedIndex, index);
+        const currentFiltered = getFilteredFiles();
+        for (let i = start; i <= end; i++) {
+          if (currentFiltered[i]) {
+            selectedFileIds.add(currentFiltered[i].id);
+          }
+        }
+        updateSelectionUI();
+        selectFileById(fileId);
+      } else {
+        selectFileById(fileId);
+      }
+      lastClickedIndex = index;
+    }
+
+    function toggleFileSelection(fileId) {
+      if (selectedFileIds.has(fileId)) {
+        selectedFileIds.delete(fileId);
+      } else {
+        selectedFileIds.add(fileId);
+      }
+      updateSelectionUI();
+    }
+
+    function toggleSelectAll(checked) {
+      const currentFiltered = getFilteredFiles();
+      if (checked) {
+        currentFiltered.forEach(f => selectedFileIds.add(f.id));
+      } else {
+        selectedFileIds.clear();
+      }
+      updateSelectionUI();
+    }
+
+    function clearSelection() {
+      selectedFileIds.clear();
+      updateSelectionUI();
+    }
+
+    function updateSelectionUI() {
+      const count = selectedFileIds.size;
+      const countBadge = document.getElementById('selectedCountBadge');
+      const batchBar = document.getElementById('batchActionBar');
+      const batchText = document.getElementById('batchSelectedText');
+      const selectAll = document.getElementById('selectAllCheckbox');
+      const filtered = getFilteredFiles();
+
+      if (count > 0) {
+        if (countBadge) {
+          countBadge.innerText = `${count} sélectionné${count > 1 ? 's' : ''}`;
+          countBadge.classList.remove('hidden');
+        }
+        if (batchBar) {
+          batchBar.classList.remove('hidden');
+          batchText.innerText = `${count} fichier${count > 1 ? 's' : ''} sélectionné${count > 1 ? 's' : ''}`;
+        }
+      } else {
+        if (countBadge) countBadge.classList.add('hidden');
+        if (batchBar) batchBar.classList.add('hidden');
+      }
+
+      if (selectAll) {
+        if (count === 0) {
+          selectAll.checked = false;
+          selectAll.indeterminate = false;
+        } else if (filtered.length > 0 && count === filtered.length) {
+          selectAll.checked = true;
+          selectAll.indeterminate = false;
+        } else {
+          selectAll.checked = false;
+          selectAll.indeterminate = true;
+        }
+      }
+
+      // Mise à jour visuelle des cases et des styles de lignes
+      document.querySelectorAll('.file-checkbox').forEach(cb => {
+        const row = cb.closest('.file-row');
+        if (row && row.id) {
+          const fid = row.id.replace('row-', '');
+          cb.checked = selectedFileIds.has(fid);
+          if (selectedFileIds.has(fid)) {
+            row.classList.add('bg-dose-50/60', 'dark:bg-dose-950/30');
+          } else {
+            row.classList.remove('bg-dose-50/60', 'dark:bg-dose-950/30');
+          }
+        }
+      });
+    }
+
+    // Rendu de la Liste (Volet Gauche)
     function renderList(files) {
       const container = document.getElementById('fileListContainer');
       if (files.length === 0) {
@@ -599,13 +749,14 @@
         return;
       }
 
-      container.innerHTML = files.map((f) => {
+      container.innerHTML = files.map((f, idx) => {
         const isSelected = filesData.indexOf(f) === currentSelectedIndex;
+        const isChecked = selectedFileIds.has(f.id);
         const ext = (f.ext || '').toLowerCase();
-        const iconClass = f.family === 'image' ? 'fa-file-image text-dose-500' :
-                          ext === '.pdf' ? 'fa-file-pdf text-red-500' :
-                          ['.docx', '.doc'].includes(ext) ? 'fa-file-word text-blue-500' :
-                          ['.xlsx', '.xls', '.csv'].includes(ext) ? 'fa-file-excel text-emerald-500' :
+        const iconClass = f.family === 'image' ? 'fa-file-image text-purple-500' :
+                          ext === '.pdf' ? 'fa-file-pdf text-red-600' :
+                          ['.docx', '.doc'].includes(ext) ? 'fa-file-word text-blue-600' :
+                          ['.xlsx', '.xls', '.csv'].includes(ext) ? 'fa-file-excel text-emerald-600' :
                           'fa-file-lines text-slate-400';
 
         const tagsHtml = (f.keywords || []).map(k => {
@@ -613,21 +764,24 @@
           return `<span class="text-[10px] text-dose-600 dark:text-dose-400 font-semibold">${t}</span>`;
         }).join(' ');
 
-        // Affichage du dossier parent bien en évidence si disponible
         const folderBadge = f.parent_dir ? `
           <span class="inline-flex items-center gap-1 text-[10px] font-mono text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 shrink-0">
-            <i class="fa-regular fa-folder text-[9px] text-dose-500"></i> ${f.parent_dir}/
+            <i class="fa-regular fa-folder text-[9px] text-dose-500"></i> ${escapeHtml(f.parent_dir)}/
           </span>
         ` : '';
 
         return `
-          <div id="row-${f.id}" onclick="selectFileById('${f.id}')"
-            class="file-row px-3.5 py-2.5 flex items-center justify-between cursor-pointer transition select-none ${
+          <div id="row-${f.id}" onclick="handleRowClick(event, '${f.id}', ${idx})"
+            class="file-row px-3 py-2.5 flex items-center justify-between cursor-pointer transition select-none ${
               isSelected
                 ? 'bg-dose-50/90 dark:bg-dose-950/40 border-l-4 border-dose-600 dark:border-dose-500 shadow-xs'
-                : 'bg-white dark:bg-[#0b0f19] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
+                : (isChecked ? 'bg-dose-50/60 dark:bg-dose-950/30' : 'bg-white dark:bg-[#0b0f19] hover:bg-slate-100/70 dark:hover:bg-slate-800/60')
             }">
-            <div class="flex items-center space-x-3 overflow-hidden">
+            <div class="flex items-center space-x-2.5 overflow-hidden">
+              <input type="checkbox"
+                class="file-checkbox rounded border-slate-300 dark:border-slate-700 text-dose-600 focus:ring-dose-500 cursor-pointer shrink-0"
+                onclick="event.stopPropagation(); toggleFileSelection('${f.id}')"
+                ${isChecked ? 'checked' : ''}>
               <div class="w-8 h-8 rounded-lg ${isSelected ? 'bg-white dark:bg-slate-800 shadow-xs' : 'bg-slate-100 dark:bg-slate-800'} flex items-center justify-center flex-shrink-0 text-sm">
                 <i class="fa-solid ${iconClass}"></i>
               </div>
@@ -639,13 +793,13 @@
                   </span>
                 </div>
                 <div class="text-[11px] text-slate-400 truncate flex items-center gap-2 mt-0.5">
-                  <span class="truncate">${tagsHtml || `<span class="italic text-slate-400">Sans étiquette</span>`}</span>
+                  <span class="truncate file-tags-preview">${tagsHtml || `<span class="italic text-slate-400">Sans étiquette</span>`}</span>
                   <span>•</span>
                   <span>${f.size_formatted}</span>
                 </div>
               </div>
             </div>
-            <div class="flex items-center pl-2">
+            <div class="flex items-center pl-2 shrink-0">
               <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 ${getFileTypeLabel(f)}
               </span>
@@ -683,7 +837,7 @@
       }).join('');
     }
 
-    // Défilement automatique fluide (Auto-scroll pour garder le fichier sélectionné toujours visible)
+    // Défilement automatique fluide
     function scrollSelectedRowIntoView(id) {
       const row = document.getElementById(`row-${id}`);
       if (row) {
@@ -697,45 +851,297 @@
       if (idx !== -1) selectFile(idx);
     }
 
-    // Affichage des détails et aperçu dans le Volet Droit Épuré
+    // Gestion du type de fichier bien visible
+    function updateFileTypeBadge(f) {
+      const badge = document.getElementById('detailFileTypeBadge');
+      const label = document.getElementById('detailFileTypeBig');
+      const icon = document.getElementById('detailFileTypeIcon');
+      if (!badge || !label || !icon) return;
+
+      const ext = (f.ext || '').toLowerCase();
+      let typeName = 'FICHIER';
+      let iconClass = 'fa-solid fa-file';
+      let colorClasses = 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700';
+
+      if (ext === '.pdf') {
+        typeName = 'PDF';
+        iconClass = 'fa-solid fa-file-pdf';
+        colorClasses = 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/70 dark:text-red-300 dark:border-red-900';
+      } else if (['.docx', '.doc'].includes(ext)) {
+        typeName = 'WORD';
+        iconClass = 'fa-solid fa-file-word';
+        colorClasses = 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-900';
+      } else if (['.xlsx', '.xls'].includes(ext)) {
+        typeName = 'EXCEL';
+        iconClass = 'fa-solid fa-file-excel';
+        colorClasses = 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-900';
+      } else if (ext === '.csv') {
+        typeName = 'CSV';
+        iconClass = 'fa-solid fa-file-csv';
+        colorClasses = 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-900';
+      } else if (['.pptx', '.ppt'].includes(ext)) {
+        typeName = 'POWERPOINT';
+        iconClass = 'fa-solid fa-file-powerpoint';
+        colorClasses = 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/70 dark:text-orange-300 dark:border-orange-900';
+      } else if (f.family === 'image' || ['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext)) {
+        typeName = (ext.replace('.', '') || 'IMAGE').toUpperCase();
+        iconClass = 'fa-solid fa-file-image';
+        colorClasses = 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/70 dark:text-purple-300 dark:border-purple-900';
+      } else if (ext === '.txt') {
+        typeName = 'TEXTE';
+        iconClass = 'fa-solid fa-file-lines';
+        colorClasses = 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+      } else {
+        typeName = (ext.replace('.', '') || f.family || 'FICHIER').toUpperCase();
+        iconClass = 'fa-solid fa-file';
+        colorClasses = 'bg-dose-50 text-dose-700 border-dose-200 dark:bg-dose-950/70 dark:text-dose-300 dark:border-dose-900';
+      }
+
+      label.innerText = typeName;
+      icon.className = iconClass;
+      badge.className = `inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-black tracking-wider uppercase shadow-2xs border ${colorClasses} shrink-0`;
+    }
+
+    // Gestion interactive des étiquettes (Tags modifiables / ajout)
+    let editingTagIndex = null;
+
+    function renderDetailTags(f) {
+      const container = document.getElementById('detailTagsList');
+      if (!container) return;
+      const keywords = f.keywords || [];
+
+      if (keywords.length === 0 && editingTagIndex === null) {
+        container.innerHTML = `<span class="text-xs text-slate-400 italic">Aucune étiquette (cliquez sur "Ajouter tag" pour en créer une).</span>`;
+        return;
+      }
+
+      container.innerHTML = keywords.map((k, idx) => {
+        const rawTag = String(k).replace(/^#+/, '').trim();
+        if (editingTagIndex === idx) {
+          return `
+            <div class="inline-flex items-center gap-1 bg-white dark:bg-slate-800 border-2 border-dose-500 rounded-lg px-2 py-0.5 shadow-2xs">
+              <span class="text-dose-600 font-bold text-xs">#</span>
+              <input id="editTagInput-${idx}" type="text" value="${escapeHtml(rawTag)}"
+                onkeydown="handleEditTagKey(event, ${idx})"
+                class="text-xs font-semibold bg-transparent text-slate-900 dark:text-slate-100 focus:outline-none w-28">
+              <button onclick="saveEditTag(${idx})" type="button" class="w-5 h-5 rounded hover:bg-dose-50 dark:hover:bg-slate-700 text-green-600 dark:text-green-400 text-xs flex items-center justify-center transition" title="Enregistrer">
+                <i class="fa-solid fa-check"></i>
+              </button>
+              <button onclick="cancelEditTag()" type="button" class="w-5 h-5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 text-xs flex items-center justify-center transition" title="Annuler">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          `;
+        }
+        return `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-dose-400 dark:hover:border-dose-600 transition shadow-2xs group">
+            <span class="cursor-pointer flex items-center gap-1 hover:text-dose-600 dark:hover:text-dose-400 transition" onclick="startEditTag(${idx})" title="Cliquer pour modifier l'étiquette">
+              <i class="fa-solid fa-hashtag text-[10px] text-dose-500"></i>
+              <span>${escapeHtml(rawTag)}</span>
+            </span>
+            <button onclick="startEditTag(${idx})" type="button" class="opacity-50 group-hover:opacity-100 hover:text-dose-600 text-[10px] ml-0.5 transition" title="Modifier cette étiquette">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button onclick="deleteTag(${idx})" type="button" class="opacity-50 group-hover:opacity-100 hover:text-red-500 text-[10px] transition" title="Supprimer cette étiquette">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      if (editingTagIndex !== null) {
+        setTimeout(() => {
+          const input = document.getElementById(`editTagInput-${editingTagIndex}`);
+          if (input) {
+            input.focus();
+            input.select();
+          }
+        }, 50);
+      }
+    }
+
+    function startEditTag(idx) {
+      editingTagIndex = idx;
+      const f = filesData[currentSelectedIndex];
+      if (f) renderDetailTags(f);
+    }
+
+    function cancelEditTag() {
+      editingTagIndex = null;
+      const f = filesData[currentSelectedIndex];
+      if (f) renderDetailTags(f);
+    }
+
+    function handleEditTagKey(e, idx) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveEditTag(idx);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancelEditTag();
+      }
+    }
+
+    async function saveEditTag(idx) {
+      const input = document.getElementById(`editTagInput-${idx}`);
+      if (!input) return;
+      const newTag = input.value.trim().replace(/^#+/, '').replace(/\s+/g, '_');
+      if (!newTag) {
+        showToast("L'étiquette ne peut pas être vide", true);
+        return;
+      }
+      const f = filesData[currentSelectedIndex];
+      if (!f) return;
+
+      const currentKeywords = [...(f.keywords || [])];
+      currentKeywords[idx] = newTag;
+
+      const uniqueKeywords = [];
+      currentKeywords.forEach(k => {
+        const clean = String(k).replace(/^#+/, '').trim();
+        if (clean && !uniqueKeywords.includes(clean)) {
+          uniqueKeywords.push(clean);
+        }
+      });
+
+      editingTagIndex = null;
+      await persistKeywords(f, uniqueKeywords);
+      renderDetailTags(f);
+    }
+
+    async function deleteTag(idx) {
+      const f = filesData[currentSelectedIndex];
+      if (!f) return;
+      const currentKeywords = [...(f.keywords || [])];
+      currentKeywords.splice(idx, 1);
+      editingTagIndex = null;
+      await persistKeywords(f, currentKeywords);
+      renderDetailTags(f);
+    }
+
+    function openAddTagInput() {
+      const btn = document.getElementById('btnShowAddTag');
+      const form = document.getElementById('addTagForm');
+      const input = document.getElementById('inputNewTag');
+      if (btn) btn.classList.add('hidden');
+      if (form) form.classList.remove('hidden');
+      if (input) {
+        input.value = '';
+        setTimeout(() => input.focus(), 50);
+      }
+    }
+
+    function cancelAddTag() {
+      const btn = document.getElementById('btnShowAddTag');
+      const form = document.getElementById('addTagForm');
+      const input = document.getElementById('inputNewTag');
+      if (btn) btn.classList.remove('hidden');
+      if (form) form.classList.add('hidden');
+      if (input) input.value = '';
+    }
+
+    function handleNewTagKey(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveNewTag();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancelAddTag();
+      }
+    }
+
+    async function saveNewTag() {
+      const input = document.getElementById('inputNewTag');
+      if (!input) return;
+      const newTag = input.value.trim().replace(/^#+/, '').replace(/\s+/g, '_');
+      if (!newTag) {
+        showToast("Veuillez saisir une étiquette", true);
+        return;
+      }
+      const f = filesData[currentSelectedIndex];
+      if (!f) return;
+
+      const currentKeywords = [...(f.keywords || [])];
+      if (currentKeywords.map(k => String(k).toLowerCase()).includes(newTag.toLowerCase())) {
+        showToast("Cette étiquette existe déjà pour ce fichier", true);
+        return;
+      }
+      currentKeywords.push(newTag);
+      cancelAddTag();
+      await persistKeywords(f, currentKeywords);
+      renderDetailTags(f);
+    }
+
+    async function persistKeywords(file, keywords) {
+      file.keywords = keywords;
+
+      const row = document.getElementById(`row-${file.id}`);
+      if (row) {
+        const tagsContainer = row.querySelector('.file-tags-preview');
+        if (tagsContainer) {
+          const tagsHtml = file.keywords.map(k => {
+            const t = formatHashtag(k);
+            return `<span class="text-[10px] text-dose-600 dark:text-dose-400 font-semibold">${t}</span>`;
+          }).join(' ');
+          tagsContainer.innerHTML = tagsHtml || `<span class="italic text-slate-400">Sans étiquette</span>`;
+        }
+      }
+
+      renderTagFilters();
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/update-tags`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scan_id: currentScanId,
+            file_id: file.id,
+            keywords: file.keywords
+          })
+        });
+        if (!resp.ok) {
+          const errData = await resp.json();
+          throw new Error(errData.error || "Erreur serveur");
+        }
+        showToast("Étiquette mise à jour avec succès");
+      } catch (err) {
+        console.warn("Erreur sauvegarde étiquette:", err);
+        showToast("Étiquette mise à jour localement", false);
+      }
+    }
+
+    // Affichage des détails et aperçu dans le Volet Droit
     async function selectFile(index) {
       if (index < 0 || index >= filesData.length) return;
       currentSelectedIndex = index;
       const f = filesData[index];
 
-      // Mettre à jour visuellement les lignes de la liste pour marquer en gras le fichier actif
+      // Mise à jour de la surbrillance active
       document.querySelectorAll('.file-row').forEach(el => {
         el.classList.remove('bg-dose-50/90', 'dark:bg-dose-950/40', 'border-l-4', 'border-dose-600', 'dark:border-dose-500', 'shadow-xs');
-        el.classList.add('bg-white', 'dark:bg-[#0b0f19]');
       });
       const activeRow = document.getElementById(`row-${f.id}`);
       if (activeRow) {
-        activeRow.classList.remove('bg-white', 'dark:bg-[#0b0f19]');
         activeRow.classList.add('bg-dose-50/90', 'dark:bg-dose-950/40', 'border-l-4', 'border-dose-600', 'dark:border-dose-500', 'shadow-xs');
       }
 
-      // Auto-scroll immédiat
       scrollSelectedRowIntoView(f.id);
 
       document.getElementById('previewEmptyState').classList.add('hidden');
       document.getElementById('previewContent').classList.remove('hidden');
 
       // 1. Visuel EN PREMIER (TOUT EN HAUT)
-      const visualCard = document.getElementById('visualCard');
       const mediaBox = document.getElementById('previewMediaContainer');
       const extraLink = document.getElementById('previewExtraLink');
       extraLink.classList.add('hidden');
       const ext = (f.ext || '').toLowerCase();
-      const hasVisual = (f.family === 'image') || (ext === '.pdf') || (['.docx', '.doc'].includes(ext));
 
       if (f.family === 'image') {
-        visualCard.classList.remove('hidden');
         mediaBox.innerHTML = `
           <img src="${API_BASE}/api/preview/${f.id}?scan_id=${encodeURIComponent(currentScanId)}"
             class="max-h-[440px] max-w-full rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 object-contain mx-auto">
         `;
       } else if (ext === '.pdf') {
-        visualCard.classList.remove('hidden');
         const pdfUrl = `${API_BASE}/api/preview/${f.id}?scan_id=${encodeURIComponent(currentScanId)}`;
         mediaBox.innerHTML = `
           <div class="w-full flex flex-col h-[500px]">
@@ -746,7 +1152,6 @@
         extraLink.innerHTML = `<a href="${pdfUrl}" target="_blank" class="text-xs text-dose-600 dark:text-dose-400 hover:underline inline-flex items-center gap-1 font-medium"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Ouvrir le PDF dans un nouvel onglet</a>`;
         extraLink.classList.remove('hidden');
       } else if (['.docx', '.doc'].includes(ext)) {
-        visualCard.classList.remove('hidden');
         mediaBox.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs"><i class="fa-solid fa-spinner fa-spin text-lg text-dose-600 mb-2 block"></i> Chargement du document Word...</div>`;
         try {
           const resp = await fetch(`${API_BASE}/api/preview-docx/${f.id}?scan_id=${encodeURIComponent(currentScanId)}`);
@@ -758,61 +1163,57 @@
               </div>
             `;
           } else {
-            mediaBox.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Aperçu direct non disponible pour ce document Word.</div>`;
+            throw new Error();
           }
         } catch (e) {
-          mediaBox.innerHTML = `<div class="p-8 text-center text-red-500 text-xs">Erreur lors de la lecture du document Word.</div>`;
+          mediaBox.innerHTML = `
+            <div class="w-full max-h-[440px] overflow-y-auto p-4 text-xs font-mono text-slate-700 dark:text-slate-300 bg-white dark:bg-[#090d16] rounded-lg border border-slate-200 dark:border-slate-800 whitespace-pre-wrap">
+              ${escapeHtml(f.extracted_text_preview || 'Aperçu texte du document non disponible.')}
+            </div>
+          `;
         }
       } else {
-        // Pas de visuel direct (texte, tableur, script) : masquer la boîte visuelle pour mettre directement les mots-clés
-        visualCard.classList.add('hidden');
+        mediaBox.innerHTML = `
+          <div class="w-full max-h-[440px] overflow-y-auto p-4 text-xs font-mono text-slate-700 dark:text-slate-300 bg-white dark:bg-[#090d16] rounded-lg border border-slate-200 dark:border-slate-800 whitespace-pre-wrap">
+            ${escapeHtml(f.extracted_text_preview || 'Aperçu non disponible pour ce type de fichier.')}
+          </div>
+        `;
       }
 
-      // 2. Type de fichier EN TRÈS GROS + métadonnées sobres
-      document.getElementById('detailFileTypeBig').innerText = getFileTypeLabel(f);
+      // 2. Type de fichier bien visible + Mots-clés / Étiquettes sur la même ligne
+      updateFileTypeBadge(f);
+      editingTagIndex = null;
+      cancelAddTag();
+      renderDetailTags(f);
+
+      // 3. Métadonnées du fichier
       document.getElementById('detailOriginalName').innerText = f.filename;
+      document.getElementById('detailOriginalName').title = f.filename;
       document.getElementById('detailMeta').innerText = `${f.size_formatted} • Date : ${f.date_display || 'Inconnue'}`;
 
-      // 3. Étiquettes identifiées (3 mots-clés principaux / hashtags)
-      const tagsBox = document.getElementById('detailTagsList');
-      const tags = (f.keywords || []).map(formatHashtag).filter(Boolean).slice(0, 3);
-      if (tags.length > 0) {
-        tagsBox.innerHTML = tags.map(t => `
-          <button onclick="filterByTag('${t}')"
-            class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-dose-50 text-dose-700 hover:bg-dose-100 dark:bg-dose-950/70 dark:text-dose-300 dark:hover:bg-dose-900 border border-dose-200 dark:border-dose-900/80 transition shadow-2xs">
-            <i class="fa-solid fa-hashtag text-[10px] text-dose-500"></i> ${t.replace(/^#/, '')}
-          </button>
-        `).join('');
-      } else {
-        tagsBox.innerHTML = `<span class="text-xs text-slate-400 italic">Aucune étiquette principale identifiée.</span>`;
-      }
-
-      // 4. Mots-clés / Entités concrètes (~10 entités réelles : OZO, Aix-Marseille Université, etc.)
+      // 4. Points clés & Synthèse du contenu
       const entitiesBox = document.getElementById('detailEntitiesBadges');
       const summaryBox = document.getElementById('detailSummaryContent');
-      
-      // Extraction des entités concrètes
+
       let entities = Array.isArray(f.key_entities) && f.key_entities.length > 0 ? f.key_entities : [];
       if (entities.length === 0 && f.summary) {
-        // Repli : découper les lignes de summary
         entities = f.summary.split('\n').map(l => l.replace(/^[\-•\*\s]+/, '').trim()).filter(Boolean);
       }
-      if (entities.length === 0 && Array.isArray(f.keywords)) {
-        entities = f.keywords;
+
+      if (entitiesBox) {
+        if (entities.length > 0) {
+          entitiesBox.classList.remove('hidden');
+          entitiesBox.innerHTML = entities.map(item => `
+            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-dose-500 mr-1.5"></span>
+              ${escapeHtml(item)}
+            </span>
+          `).join('');
+        } else {
+          entitiesBox.classList.add('hidden');
+        }
       }
 
-      if (entities.length > 0) {
-        entitiesBox.innerHTML = entities.map(item => `
-          <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs">
-            <span class="w-1.5 h-1.5 rounded-full bg-dose-500 mr-1.5"></span>
-            ${item}
-          </span>
-        `).join('');
-      } else {
-        entitiesBox.innerHTML = `<span class="text-xs text-slate-400 italic">Aucune entité extraite.</span>`;
-      }
-
-      // Puces sobres
       const rawSummary = f.summary || "";
       const lines = rawSummary.split('\n').map(l => l.trim()).filter(Boolean);
       if (lines.length > 0) {
@@ -821,7 +1222,7 @@
           <ul class="space-y-1">
             ${lines.map(line => {
               const clean = line.replace(/^[\-•\*\s]+/, '');
-              return `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300"><span class="text-dose-600 font-bold">•</span><span>${clean}</span></li>`;
+              return `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300"><span class="text-dose-600 font-bold">•</span><span>${escapeHtml(clean)}</span></li>`;
             }).join('')}
           </ul>
         `;
@@ -830,10 +1231,194 @@
       }
     }
 
-    // Défilement fluide au clavier avec les flèches Haut / Bas
-    document.addEventListener('keydown', (e) => {
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+    // Modal de Déplacement (Déclenché par M ou bouton)
+    function openMoveModal() {
+      let targetFiles = [];
+      if (selectedFileIds.size > 0) {
+        targetFiles = filesData.filter(f => selectedFileIds.has(f.id));
+      } else if (currentSelectedIndex >= 0 && currentSelectedIndex < filesData.length) {
+        targetFiles = [filesData[currentSelectedIndex]];
+        selectedFileIds.add(filesData[currentSelectedIndex].id);
+        updateSelectionUI();
+      }
 
+      if (targetFiles.length === 0) {
+        showToast("Veuillez sélectionner au moins un fichier à déplacer", true);
+        return;
+      }
+
+      const modal = document.getElementById('moveModal');
+      const summary = document.getElementById('moveModalSummary');
+      const list = document.getElementById('moveModalFileList');
+      const suggestions = document.getElementById('subfolderQuickSuggestions');
+      const categoryHelp = document.getElementById('moveCategoryHelpText');
+
+      summary.innerText = `${targetFiles.length} fichier(s) sélectionné(s)`;
+      list.innerHTML = targetFiles.map(f => `
+        <div class="truncate flex items-center gap-1.5">
+          <i class="fa-solid fa-file text-slate-400 text-[10px]"></i>
+          <span class="font-semibold text-slate-700 dark:text-slate-300 truncate">${escapeHtml(f.filename)}</span>
+          <span class="text-slate-400 text-[10px]">(${escapeHtml(f.category || 'Divers')})</span>
+        </div>
+      `).join('');
+
+      const categories = [...new Set(filesData.map(f => f.category).filter(Boolean))];
+      if (targetFiles.length === 1 && targetFiles[0].category) {
+        categoryHelp.innerText = `Le fichier sera déplacé dans le dossier : "${targetFiles[0].category}"`;
+      } else {
+        categoryHelp.innerText = `Chaque fichier sera rangé dans le sous-dossier de sa catégorie détectée.`;
+      }
+
+      suggestions.innerHTML = categories.map(cat => `
+        <button type="button" onclick="selectQuickFolder('${escapeHtml(cat)}')"
+          class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-dose-50 hover:text-dose-700 dark:bg-slate-700 dark:hover:bg-dose-950/70 dark:hover:text-dose-300 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition">
+          ${escapeHtml(cat)}
+        </button>
+      `).join('');
+
+      document.getElementById('moveModeCategory').checked = true;
+      onMoveModeChanged();
+
+      modal.classList.remove('hidden');
+    }
+
+    function onMoveModeChanged() {
+      const isCustom = document.getElementById('moveModeCustom').checked;
+      const input = document.getElementById('targetSubfolderInput');
+      input.disabled = !isCustom;
+      if (isCustom) {
+        setTimeout(() => input.focus(), 50);
+      }
+    }
+
+    function selectQuickFolder(name) {
+      document.getElementById('moveModeCustom').checked = true;
+      onMoveModeChanged();
+      const input = document.getElementById('targetSubfolderInput');
+      input.value = name;
+    }
+
+    function closeMoveModal() {
+      const modal = document.getElementById('moveModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function confirmMove() {
+      const isCustom = document.getElementById('moveModeCustom').checked;
+      let targetSubfolder = null;
+      if (isCustom) {
+        targetSubfolder = document.getElementById('targetSubfolderInput').value.trim();
+        if (!targetSubfolder) {
+          showToast("Veuillez indiquer un nom de sous-dossier", true);
+          document.getElementById('targetSubfolderInput').focus();
+          return;
+        }
+      }
+
+      const fileIdsToMove = Array.from(selectedFileIds);
+      if (fileIdsToMove.length === 0) {
+        showToast("Aucun fichier sélectionné", true);
+        closeMoveModal();
+        return;
+      }
+
+      const btnConfirm = document.getElementById('btnConfirmMove');
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Déplacement en cours...`;
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/batch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scan_id: currentScanId,
+            action: 'move_category',
+            subfolder: targetSubfolder,
+            file_ids: fileIdsToMove
+          })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || "Erreur lors du déplacement");
+
+        const processed = data.processed || [];
+        const successCount = processed.filter(p => p.status === 'moved').length;
+
+        // Mettre à jour les données locales
+        processed.forEach(item => {
+          if (item.status === 'moved') {
+            const f = filesData.find(x => x.id === item.id);
+            if (f) {
+              f.abs_path = item.path;
+              if (item.parent_dir) f.parent_dir = item.parent_dir;
+            }
+          }
+        });
+
+        closeMoveModal();
+        clearSelection();
+        applyFilters();
+        if (currentSelectedIndex >= 0) {
+          selectFile(currentSelectedIndex);
+        }
+
+        showToast(`✓ ${successCount} fichier(s) déplacé(s) avec succès !`);
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> Déplacer maintenant (Entrée)`;
+      }
+    }
+
+    // Bascule Split / Grille
+    function switchView(mode) {
+      currentViewMode = mode;
+      const btnSplit = document.getElementById('btnViewSplit');
+      const btnGrid = document.getElementById('btnViewGrid');
+      const leftPane = document.getElementById('leftPane');
+      const rightPane = document.getElementById('rightPane');
+      const gridPane = document.getElementById('gridPane');
+
+      if (mode === 'grid') {
+        gridPane.classList.remove('hidden');
+        leftPane.classList.add('hidden');
+        rightPane.classList.add('hidden');
+        btnGrid.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
+        btnSplit.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
+      } else {
+        gridPane.classList.add('hidden');
+        leftPane.classList.remove('hidden');
+        rightPane.classList.remove('hidden');
+        btnSplit.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
+        btnGrid.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-2xs');
+      }
+    }
+
+    // Raccourcis clavier : Touche M pour Déplacer, Flèches Haut/Bas, Echap
+    document.addEventListener('keydown', (e) => {
+      // Si l'utilisateur est en train d'écrire dans un champ de texte
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+        if (e.key === 'Escape') {
+          closeMoveModal();
+        }
+        return;
+      }
+
+      // Raccourci M ou m : Déplacer les fichiers
+      if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        openMoveModal();
+        return;
+      }
+
+      // Échap : fermer le modal
+      if (e.key === 'Escape') {
+        closeMoveModal();
+        return;
+      }
+
+      // Navigation avec flèches
       if (e.key === 'ArrowDown' || e.key === 'j') {
         e.preventDefault();
         if (currentSelectedIndex < filesData.length - 1) {
@@ -847,11 +1432,8 @@
       }
     });
 
-    // Chargement initial au démarrage
+    // Prêt à l'emploi (au clic de l'utilisateur)
     window.addEventListener('DOMContentLoaded', () => {
-      loadEnvironmentInfo();
-      const isDark = document.documentElement.classList.contains('dark');
-      updateThemeIcon(isDark);
       const dirInput = document.getElementById('dirInput');
       if (dirInput) dirInput.focus();
     });
